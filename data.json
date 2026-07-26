@@ -122,9 +122,10 @@
     {
       "id": "ems2b4zfgmcqno",
       "name": "سعید مسائلی",
-      "active": false,
+      "active": true,
       "createdAt": "1405-05-05",
-      "leftAt": "1405-05-05"
+      "leftAt": null,
+      "inactivePeriods": []
     }
   ],
   "records": {
@@ -160,6 +161,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-07-26T21:46:10.319Z",
+      "text": "بازگرداندن نیرو: سعید مسائلی"
+    },
     {
       "ts": "2026-07-26T21:26:01.320Z",
       "text": "حذف/غیرفعال‌سازی نیرو: سعید مسائلی"
