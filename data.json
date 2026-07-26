@@ -34,12 +34,23 @@
       "active": true,
       "createdAt": "1405-05-04",
       "leftAt": null
+    },
+    {
+      "id": "ems295ahpz5jtx",
+      "name": "سیف الله",
+      "active": true,
+      "createdAt": "1405-05-04",
+      "leftAt": null
     }
   ],
   "records": {},
   "bonus": {},
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-07-26T20:30:11.293Z",
+      "text": "افزودن نیرو: سیف الله"
+    },
     {
       "ts": "2026-07-26T20:30:03.935Z",
       "text": "افزودن نیرو: فیاض"
