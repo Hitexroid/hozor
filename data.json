@@ -125,6 +125,13 @@
       "active": false,
       "createdAt": "1405-05-04",
       "leftAt": "1405-05-05"
+    },
+    {
+      "id": "ems2b4zfgmcqno",
+      "name": "سعید مسائلی",
+      "active": true,
+      "createdAt": "1405-05-05",
+      "leftAt": null
     }
   ],
   "records": {
@@ -155,10 +162,15 @@
     "ems296sgt1mf15": {},
     "ems294wom5sdes": {},
     "ems297x826ylgf": {},
-    "ems294ern9vmnk": {}
+    "ems294ern9vmnk": {},
+    "ems29959397416": {}
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-07-26T21:25:56.189Z",
+      "text": "افزودن نیرو: سعید مسائلی"
+    },
     {
       "ts": "2026-07-26T21:25:09.645Z",
       "text": "حذف/غیرفعال‌سازی نیرو: سعید مسائلی"
