@@ -111,12 +111,23 @@
       "active": true,
       "createdAt": "1405-05-04",
       "leftAt": null
+    },
+    {
+      "id": "ems298oifvcufe",
+      "name": "خانم سلطانی",
+      "active": true,
+      "createdAt": "1405-05-04",
+      "leftAt": null
     }
   ],
   "records": {},
   "bonus": {},
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-07-26T20:32:49.431Z",
+      "text": "افزودن نیرو: خانم سلطانی"
+    },
     {
       "ts": "2026-07-26T20:32:14.066Z",
       "text": "افزودن نیرو: آقای نامی"
