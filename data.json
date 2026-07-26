@@ -62,12 +62,23 @@
       "active": true,
       "createdAt": "1405-05-04",
       "leftAt": null
+    },
+    {
+      "id": "ems296aw89wslt",
+      "name": "آرمین",
+      "active": true,
+      "createdAt": "1405-05-04",
+      "leftAt": null
     }
   ],
   "records": {},
   "bonus": {},
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-07-26T20:30:58.472Z",
+      "text": "افزودن نیرو: آرمین"
+    },
     {
       "ts": "2026-07-26T20:30:54.991Z",
       "text": "افزودن نیرو: نصرت"
