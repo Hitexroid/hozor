@@ -104,12 +104,23 @@
       "active": true,
       "createdAt": "1405-05-04",
       "leftAt": null
+    },
+    {
+      "id": "ems297x826ylgf",
+      "name": "آقای نامی",
+      "active": true,
+      "createdAt": "1405-05-04",
+      "leftAt": null
     }
   ],
   "records": {},
   "bonus": {},
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-07-26T20:32:14.066Z",
+      "text": "افزودن نیرو: آقای نامی"
+    },
     {
       "ts": "2026-07-26T20:32:09.080Z",
       "text": "افزودن نیرو: محمدطاحا"
