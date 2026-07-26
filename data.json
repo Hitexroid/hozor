@@ -76,12 +76,23 @@
       "active": true,
       "createdAt": "1405-05-04",
       "leftAt": null
+    },
+    {
+      "id": "ems296sgt1mf15",
+      "name": "غلام خوشحال",
+      "active": true,
+      "createdAt": "1405-05-04",
+      "leftAt": null
     }
   ],
   "records": {},
   "bonus": {},
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-07-26T20:31:21.245Z",
+      "text": "افزودن نیرو: غلام خوشحال"
+    },
     {
       "ts": "2026-07-26T20:31:13.271Z",
       "text": "افزودن نیرو: عباس مورخ"
