@@ -13,12 +13,23 @@
       "active": true,
       "createdAt": "1405-05-04",
       "leftAt": null
+    },
+    {
+      "id": "ems294t4wlzhvv",
+      "name": "عزیز",
+      "active": true,
+      "createdAt": "1405-05-04",
+      "leftAt": null
     }
   ],
   "records": {},
   "bonus": {},
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-07-26T20:29:48.800Z",
+      "text": "افزودن نیرو: عزیز"
+    },
     {
       "ts": "2026-07-26T20:29:45.310Z",
       "text": "افزودن نیرو: هارون"
