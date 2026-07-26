@@ -90,12 +90,23 @@
       "active": true,
       "createdAt": "1405-05-04",
       "leftAt": null
+    },
+    {
+      "id": "ems297mhpbrz7d",
+      "name": "خانم محمدی",
+      "active": true,
+      "createdAt": "1405-05-04",
+      "leftAt": null
     }
   ],
   "records": {},
   "bonus": {},
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-07-26T20:32:00.157Z",
+      "text": "افزودن نیرو: خانم محمدی"
+    },
     {
       "ts": "2026-07-26T20:31:36.189Z",
       "text": "افزودن نیرو: ابوالفضل معصومی"
