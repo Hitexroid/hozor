@@ -118,12 +118,23 @@
       "active": true,
       "createdAt": "1405-05-04",
       "leftAt": null
+    },
+    {
+      "id": "ems29959397416",
+      "name": "سعید مسائلی",
+      "active": true,
+      "createdAt": "1405-05-04",
+      "leftAt": null
     }
   ],
   "records": {},
   "bonus": {},
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-07-26T20:33:11.127Z",
+      "text": "افزودن نیرو: سعید مسائلی"
+    },
     {
       "ts": "2026-07-26T20:32:49.431Z",
       "text": "افزودن نیرو: خانم سلطانی"
