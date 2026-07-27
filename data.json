@@ -156,6 +156,16 @@
           "to": null
         }
       ]
+    },
+    {
+      "id": "ems3qik4bf4abo",
+      "name": "ممد تستی",
+      "role": "بسته‌بندی",
+      "active": true,
+      "createdAt": "1405-05-06",
+      "leftAt": null,
+      "startDate": "1405-05-06",
+      "inactivePeriods": []
     }
   ],
   "records": {
@@ -190,10 +200,15 @@
     "ems294ern9vmnk": {},
     "ems29959397416": {},
     "ems2954tb4l7cd": {},
-    "ems2b4zfgmcqno": {}
+    "ems2b4zfgmcqno": {},
+    "ems298oifvcufe": {}
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-07-27T21:24:09.947Z",
+      "text": "افزودن نیرو: ممد تستی (استخدام جدید از امروز)"
+    },
     {
       "ts": "2026-07-27T21:02:08.299Z",
       "text": "ویرایش نیرو: غلام سخی (سمت: — → وسط کار)"
