@@ -126,6 +126,14 @@
       "createdAt": "1405-05-05",
       "leftAt": null,
       "inactivePeriods": []
+    },
+    {
+      "id": "ems39gn32sy09k",
+      "name": "نیروی تستی",
+      "active": true,
+      "createdAt": "1405-05-05",
+      "leftAt": null,
+      "inactivePeriods": []
     }
   ],
   "records": {
@@ -164,6 +172,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-07-27T13:26:47.006Z",
+      "text": "افزودن نیرو: نیروی تستی"
+    },
     {
       "ts": "2026-07-27T05:46:46.986Z",
       "text": "حذف ثبت دستی برای ۵ مرداد"
