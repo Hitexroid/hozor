@@ -90,10 +90,13 @@ input,select,textarea{font-family:inherit}
 
 /* employee list */
 .emp-grid{display:flex;flex-direction:column;gap:8px}
-.emp-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:12px}
-.emp-row .nm{font-weight:600;cursor:pointer}
-.emp-row .nm:hover{color:var(--accent)}
-.emp-row .icons{display:flex;gap:6px}
+.emp-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;gap:10px}
+.emp-row .nm-wrap{display:flex;flex-direction:column;gap:2px;cursor:pointer;min-width:0}
+.emp-row .nm{font-weight:600}
+.emp-row .nm-wrap:hover .nm{color:var(--accent)}
+.emp-row .role-tag{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.emp-row .crown{color:var(--warn);font-size:12px}
+.emp-row .icons{display:flex;gap:6px;flex-shrink:0}
 .icon-btn{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;color:var(--muted)}
 .icon-btn:hover{color:var(--text);background:var(--card2)}
 .icon-btn.danger:hover{color:var(--bad)}
@@ -176,6 +179,15 @@ table.rep tr.future td{color:var(--muted2)}
 .month-switch .lbl{font-weight:700;min-width:110px;text-align:center}
 
 .empty{color:var(--muted2);font-size:13px;text-align:center;padding:20px 0}
+
+.choice-row{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.choice-card{display:flex;align-items:flex-start;gap:10px;padding:14px;border-radius:12px;border:1px solid var(--border2);background:var(--bg3);text-align:right;width:100%}
+.choice-card b{display:block;margin-bottom:4px;font-size:14px}
+.choice-card span{font-size:12px;color:var(--muted);line-height:1.6}
+.choice-card.fire{border-color:rgba(251,191,36,.4)}
+.choice-card.fire:hover{background:rgba(251,191,36,.08)}
+.choice-card.wipe{border-color:rgba(248,113,113,.4)}
+.choice-card.wipe:hover{background:rgba(248,113,113,.08)}
 </style>
 </head>
 <body>
@@ -203,7 +215,7 @@ table.rep tr.future td{color:var(--muted2)}
 
   <!-- quick entry -->
   <div class="card">
-    <h2>ثبت سریع تردد <span class="badge" id="empCountBadge">۰ نیرو</span></h2>
+    <h2>ثبت سریع تردد</h2>
     <div class="search-box">
       <input type="text" class="search-input" id="searchInput" placeholder="نام نیرو را جستجو کنید... مثلاً: س">
       <div class="search-results" id="searchResults"></div>
@@ -213,12 +225,11 @@ table.rep tr.future td{color:var(--muted2)}
 
   <!-- employee list / manage -->
   <div class="card">
-    <h2>نیروها</h2>
+    <h2>نیروها <span class="badge" id="empCountBadge">۰ نیرو</span></h2>
     <div class="emp-grid" id="empList"></div>
-    <span class="toggle-link" id="toggleInactive">نمایش نیروهای غیرفعال</span>
+    <span class="toggle-link" id="toggleInactive">نمایش نیروهای اخراجی</span>
     <div class="add-row">
-      <input type="text" id="newEmpName" placeholder="نام نیروی جدید">
-      <button class="btn" id="addEmpBtn">افزودن نیرو</button>
+      <button class="btn" id="addEmpBtn" style="width:100%">+ افزودن نیروی جدید</button>
     </div>
   </div>
 
@@ -323,7 +334,7 @@ table.rep tr.future td{color:var(--muted2)}
     </div>
     <div class="field-row">
       <div class="field"><label>نیرو</label><input id="editEmpName" disabled></div>
-      <div class="field"><label>سال</label><input id="editYear" type="number"></div>
+      <div class="field"><label>سال</label><input id="editYear" type="text" inputmode="numeric"></div>
     </div>
     <div class="field-row">
       <div class="field"><label>ماه</label><select id="editMonth"></select></div>
@@ -398,6 +409,70 @@ table.rep tr.future td{color:var(--muted2)}
       </table>
     </div>
 
+  </div>
+</div>
+
+<!-- add employee modal -->
+<div class="overlay" id="addEmpOverlay">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head">
+      <h3>افزودن نیروی جدید</h3>
+      <div class="close-x" data-close="addEmpOverlay">✕</div>
+    </div>
+    <div class="field"><label>نام نیرو</label><input type="text" id="addEmpName" placeholder="نام نیروی جدید"></div>
+    <div class="field"><label>سمت</label><select id="addEmpRole"></select></div>
+    <div class="chk">
+      <input type="checkbox" id="addEmpIsNew">
+      <label for="addEmpIsNew" style="margin:0">این نیرو تازه استخدام شده و از امروز شروع به کار کرده است</label>
+    </div>
+    <div class="hint" id="addEmpNewHint" style="margin-bottom:6px">در صورت فعال بودن این گزینه، برای روزهای قبل از امروز در همین ماه، هیچ ساعت کاری (پیش‌فرض یا دستی) برای این نیرو محاسبه نخواهد شد و صفر ثبت می‌شود.</div>
+    <div class="modal-actions">
+      <button class="btn secondary" data-close="addEmpOverlay">انصراف</button>
+      <button class="btn" id="saveAddEmpBtn">افزودن نیرو</button>
+    </div>
+  </div>
+</div>
+
+<!-- edit employee (name + role) modal -->
+<div class="overlay" id="empEditOverlay">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head">
+      <h3>ویرایش نیرو</h3>
+      <div class="close-x" data-close="empEditOverlay">✕</div>
+    </div>
+    <div class="field"><label>نام نیرو</label><input type="text" id="empEditName"></div>
+    <div class="field"><label>سمت</label><select id="empEditRole"></select></div>
+    <div class="modal-actions">
+      <button class="btn secondary" data-close="empEditOverlay">انصراف</button>
+      <button class="btn" id="saveEmpEditBtn">ذخیره</button>
+    </div>
+  </div>
+</div>
+
+<!-- remove employee: fire vs full delete -->
+<div class="overlay" id="empActionOverlay">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head">
+      <h3 id="empActionTitle">حذف نیرو</h3>
+      <div class="close-x" data-close="empActionOverlay">✕</div>
+    </div>
+    <div class="choice-row">
+      <button class="choice-card fire" id="empActionFireBtn">
+        <span>
+          <b>اخراج</b>
+          <span>گزارش‌ها و سوابق این نیرو حفظ می‌شود و در اکسل/PDF با برچسب «اخراج شده» نمایش داده می‌شود. تا زمانی که دوباره با همین نام اضافه نشود، هیچ ساعت کاری (خودکار یا دستی) برای او ثبت نخواهد شد.</span>
+        </span>
+      </button>
+      <button class="choice-card wipe" id="empActionWipeBtn">
+        <span>
+          <b>حذف کامل</b>
+          <span>این نیرو و تمام گزارش‌های او به‌طور کامل و از ریشه حذف می‌شوند و دیگر در هیچ خروجی اکسل یا PDF ظاهر نخواهد شد. برای نیروهای تستی مناسب است.</span>
+        </span>
+      </button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" data-close="empActionOverlay">انصراف</button>
+    </div>
   </div>
 </div>
 
@@ -482,6 +557,11 @@ function faDigits(v){
   const map={'0':'۰','1':'۱','2':'۲','3':'۳','4':'۴','5':'۵','6':'۶','7':'۷','8':'۸','9':'۹'};
   return String(v).replace(/[0-9]/g, d=>map[d]);
 }
+function faToEn(v){
+  const map={'۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9'};
+  return String(v).replace(/[۰-۹]/g, d=>map[d]);
+}
+function editYearValue(){ return parseInt(faToEn(document.getElementById('editYear').value),10); }
 function dateKey(jy,jm,jd){ return jy+'-'+pad2(jm)+'-'+pad2(jd); }
 function getTodayJalali(){
   const now=new Date();
@@ -500,8 +580,35 @@ function iranWeekdayIdx(jy,jm,jd){
 /* ============================================================
    STATE / DB
    ============================================================ */
+/* ============================================================
+   ROLES (سمت‌ها)
+   ============================================================ */
+const MANAGER_ROLE = 'مدیر داخلی';
+const MANAGER_NAME = 'آقای نامی';
+const ROLES = [
+  { key:'تزریق کار', icon:'💧' },
+  { key:'وسط کار', icon:'🔧' },
+  { key:'نقاش', icon:'🎨' },
+  { key:'کمک نقاش', icon:'🖌️' },
+  { key:'واکس زن', icon:'🕯️' },
+  { key:'بسته‌بندی', icon:'📦' },
+  { key:'مواد ساز', icon:'🧱' },
+  { key:'نقاش پشت قالب', icon:'🖼️' },
+  { key:'واکس زن پشت قالب', icon:'🪔' },
+  { key:'پولیش کار', icon:'✨' },
+  { key:'سفارشات و ارسال', icon:'🚚' },
+  { key:'سنگ زن', icon:'⚙️' },
+  { key:MANAGER_ROLE, icon:'👑' }
+];
+function roleIcon(role){ const r=ROLES.find(x=>x.key===role); return r? r.icon : '👤'; }
+function roleOptionsHtml(excludeManager, selected){
+  return ROLES.filter(r=> !excludeManager || r.key!==MANAGER_ROLE).map(r=>
+    `<option value="${escapeHtml(r.key)}" ${r.key===selected?'selected':''}>${r.icon} ${escapeHtml(r.key)}</option>`
+  ).join('');
+}
+
 let DB = {
-  employees: [],      // {id, name, active, createdAt, leftAt}
+  employees: [],      // {id, name, active, role, createdAt, leftAt, startDate, inactivePeriods}
   records: {},         // empId -> dateKey -> record
   bonus: {},            // empId -> "YYYY-MM" -> {type,amount,note}
   holidays: {},          // dateKey -> title
@@ -519,12 +626,18 @@ let calYM = { jy: today.jy, jm: today.jm };
 
 function uid(){ return 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
+function ensureManagerSeed(){
+  if(!DB.employees.find(e=>e.name.trim()===MANAGER_NAME)){
+    DB.employees.push({ id:uid(), name:MANAGER_NAME, role:MANAGER_ROLE, active:true, createdAt:dateKey(today.jy,today.jm,today.jd), leftAt:null, startDate:null, inactivePeriods:[] });
+  }
+}
 function loadLocal(){
   try{
     const raw = localStorage.getItem('attendance_db');
     if(raw) DB = JSON.parse(raw);
   }catch(e){}
   DB.settings = Object.assign({workIn:'08:00',workOut:'18:00',thuOut:'14:00',reminderHour:17,reminderMinute:0}, DB.settings||{});
+  ensureManagerSeed();
   try{
     const s = localStorage.getItem('attendance_gh_settings');
     if(s) ghSettings = Object.assign(ghSettings, JSON.parse(s));
@@ -579,6 +692,7 @@ async function loadFromGithub(silent){
     const parsed = JSON.parse(content);
     DB = Object.assign({employees:[],records:{},bonus:{},holidays:{},logs:[],settings:{workIn:'08:00',workOut:'18:00',thuOut:'14:00',reminderHour:17,reminderMinute:0}}, parsed);
     DB.settings = Object.assign({workIn:'08:00',workOut:'18:00',thuOut:'14:00',reminderHour:17,reminderMinute:0}, DB.settings||{});
+    ensureManagerSeed();
     saveLocal();
     setBadge('ok','بارگذاری شد');
     renderAll();
@@ -700,7 +814,13 @@ function getDayInfo(empId, jy, jm, jd){
 
   if(inactive){
     info.type='removed'; info.in=null; info.out=null; info.overtime=0; info.diff=0;
-    info.note='نیرو در این تاریخ حذف/غیرفعال بوده است';
+    info.note='نیرو در این تاریخ اخراج بوده است';
+    return info;
+  }
+
+  if(emp && emp.startDate && key < emp.startDate){
+    info.type='not-started'; info.in=null; info.out=null; info.overtime=0; info.diff=0;
+    info.note='قبل از تاریخ استخدام این نیرو';
     return info;
   }
 
@@ -770,23 +890,48 @@ function renderEmpCount(){
   document.getElementById('empCountBadge').textContent = faDigits(activeEmployees().length)+' نیرو';
 }
 
+function employeeScore(empId){
+  const {rows}=monthSummary(empId, today.jy, today.jm);
+  let leaveCount=0, deficit=0;
+  rows.forEach(r=>{
+    if(r.leave) leaveCount++;
+    if(r.diff!=null && r.diff<0) deficit += -r.diff;
+  });
+  return { leaveCount, deficit: Math.round(deficit*100)/100 };
+}
+
+function sortedEmployeeList(list){
+  return list.slice().sort((a,b)=>{
+    const sa=employeeScore(a.id), sb=employeeScore(b.id);
+    if(sa.leaveCount!==sb.leaveCount) return sa.leaveCount-sb.leaveCount;
+    if(sa.deficit!==sb.deficit) return sa.deficit-sb.deficit;
+    return 0;
+  });
+}
+
 function renderEmpList(){
   const wrap=document.getElementById('empList');
-  const list = showInactive ? DB.employees : activeEmployees();
+  const base = showInactive ? DB.employees : activeEmployees();
+  const list = sortedEmployeeList(base);
   if(list.length===0){ wrap.innerHTML='<div class="empty">هنوز نیرویی اضافه نشده است.</div>'; }
   else{
     wrap.innerHTML = list.map(e=>{
       const inactive = e.active===false;
+      const isManager = e.role===MANAGER_ROLE;
+      const roleHtml = e.role? `<span class="role-tag">${isManager?'<span class="crown">👑</span>':roleIcon(e.role)} ${escapeHtml(e.role)}</span>` : '';
       return `<div class="emp-row ${inactive?'inactive-row':''}" data-id="${e.id}">
-        <span class="nm" onclick="openReport('${e.id}')">${escapeHtml(e.name)} ${inactive?'<span style=\"color:var(--muted);font-size:11px\">(غیرفعال)</span>':''}</span>
+        <span class="nm-wrap" onclick="openReport('${e.id}')">
+          <span class="nm">${escapeHtml(e.name)} ${inactive?'<span style=\"color:var(--muted);font-size:11px\">(اخراج شده)</span>':''}</span>
+          ${roleHtml}
+        </span>
         <span class="icons">
-          <button class="icon-btn" onclick="renameEmployee('${e.id}')" title="ویرایش نام">✎</button>
-          ${!inactive? `<button class="icon-btn danger" onclick="removeEmployee('${e.id}')" title="حذف">🗑</button>` : ''}
+          <button class="icon-btn" onclick="event.stopPropagation();openEmpEditModal('${e.id}')" title="ویرایش">✎</button>
+          ${!inactive? `<button class="icon-btn danger" onclick="event.stopPropagation();openEmpActionModal('${e.id}')" title="حذف">🗑</button>` : ''}
         </span>
       </div>`;
     }).join('');
   }
-  document.getElementById('toggleInactive').textContent = showInactive? 'مخفی‌کردن نیروهای غیرفعال' : 'نمایش نیروهای غیرفعال';
+  document.getElementById('toggleInactive').textContent = showInactive? 'مخفی‌کردن نیروهای اخراجی' : 'نمایش نیروهای اخراجی';
   renderEmpCount();
 }
 
@@ -799,10 +944,21 @@ function findEmployeeByName(name, activeOnly){
   return DB.employees.find(e => e.name.trim().toLowerCase()===norm && (!activeOnly || e.active!==false));
 }
 
-document.getElementById('addEmpBtn').onclick=()=>{
-  const inp=document.getElementById('newEmpName');
-  const name=inp.value.trim();
-  if(!name) return;
+/* ---- add employee modal ---- */
+function openAddEmpModal(){
+  document.getElementById('addEmpName').value='';
+  document.getElementById('addEmpRole').innerHTML = roleOptionsHtml(true, null);
+  document.getElementById('addEmpIsNew').checked=false;
+  closeAllOverlays();
+  document.getElementById('addEmpOverlay').classList.add('show');
+}
+document.getElementById('addEmpBtn').onclick=openAddEmpModal;
+
+document.getElementById('saveAddEmpBtn').onclick=()=>{
+  const name=document.getElementById('addEmpName').value.trim();
+  const role=document.getElementById('addEmpRole').value;
+  const isNew=document.getElementById('addEmpIsNew').checked;
+  if(!name){ alert('نام نیرو را وارد کنید.'); return; }
 
   const activeMatch = findEmployeeByName(name, true);
   if(activeMatch){
@@ -810,48 +966,88 @@ document.getElementById('addEmpBtn').onclick=()=>{
     return;
   }
 
-  const inactiveMatch = findEmployeeByName(name, false); // any match not caught above means inactive
+  const todayKey = dateKey(today.jy,today.jm,today.jd);
+  const inactiveMatch = findEmployeeByName(name, false); // any match not caught above means fired/inactive
   if(inactiveMatch){
-    if(!confirm('نیرویی با نام «'+inactiveMatch.name+'» قبلاً حذف شده بود. آیا می‌خواهید همان نیرو را بازگردانید؟')) return;
+    if(!confirm('نیرویی با نام «'+inactiveMatch.name+'» قبلاً اخراج شده بود. آیا می‌خواهید همان نیرو را بازگردانید؟')) return;
     if(!inactiveMatch.inactivePeriods) inactiveMatch.inactivePeriods=[];
-    const todayKey = dateKey(today.jy,today.jm,today.jd);
     const openPeriod = inactiveMatch.inactivePeriods.find(p=>p.to===null);
     if(openPeriod) openPeriod.to = todayKey;
     inactiveMatch.active = true;
     inactiveMatch.leftAt = null;
-    inp.value='';
+    inactiveMatch.role = role;
+    if(isNew) inactiveMatch.startDate = todayKey;
+    closeOverlay('addEmpOverlay');
     mutate('بازگرداندن نیرو: '+inactiveMatch.name);
     return;
   }
 
-  const emp={ id:uid(), name, active:true, createdAt: dateKey(today.jy,today.jm,today.jd), leftAt:null, inactivePeriods:[] };
+  const emp={ id:uid(), name, role, active:true, createdAt: todayKey, leftAt:null, startDate: isNew? todayKey : null, inactivePeriods:[] };
   DB.employees.push(emp);
-  inp.value='';
-  mutate('افزودن نیرو: '+name);
+  closeOverlay('addEmpOverlay');
+  mutate('افزودن نیرو: '+name+(isNew? ' (استخدام جدید از امروز)':''));
 };
 
-function renameEmployee(id){
+/* ---- edit employee (name + role) modal ---- */
+let empEditCtx={ empId:null };
+function openEmpEditModal(id){
   const emp=DB.employees.find(e=>e.id===id); if(!emp) return;
-  const nn=prompt('نام جدید نیرو:', emp.name);
-  if(nn && nn.trim()){
-    const newName=nn.trim();
-    const dup = DB.employees.find(e=> e.id!==id && e.active!==false && e.name.trim().toLowerCase()===newName.toLowerCase());
-    if(dup){ alert('نیرویی با نام «'+dup.name+'» از قبل وجود دارد.'); return; }
-    const old=emp.name;
-    emp.name=newName;
-    mutate('ویرایش نام نیرو: '+old+' → '+emp.name);
-  }
+  empEditCtx.empId=id;
+  document.getElementById('empEditName').value=emp.name;
+  const isManager = emp.role===MANAGER_ROLE;
+  document.getElementById('empEditRole').innerHTML = roleOptionsHtml(!isManager, emp.role);
+  document.getElementById('empEditRole').disabled = isManager;
+  closeAllOverlays();
+  document.getElementById('empEditOverlay').classList.add('show');
 }
-function removeEmployee(id){
+document.getElementById('saveEmpEditBtn').onclick=()=>{
+  const id=empEditCtx.empId;
   const emp=DB.employees.find(e=>e.id===id); if(!emp) return;
-  if(!confirm('نیرو "'+emp.name+'" حذف شود؟ اطلاعات قبلی او حفظ می‌ماند، اما تا زمانی که دوباره با همین نام اضافه نشود، هیچ ساعت کاری (دستی یا خودکار) برای او ثبت نخواهد شد و در گزارش‌ها صفر نمایش داده می‌شود.')) return;
+  const newName=document.getElementById('empEditName').value.trim();
+  const newRole=document.getElementById('empEditRole').disabled? emp.role : document.getElementById('empEditRole').value;
+  if(!newName){ alert('نام نیرو نمی‌تواند خالی باشد.'); return; }
+  const dup = DB.employees.find(e=> e.id!==id && e.active!==false && e.name.trim().toLowerCase()===newName.toLowerCase());
+  if(dup){ alert('نیرویی با نام «'+dup.name+'» از قبل وجود دارد.'); return; }
+  const old=emp.name, oldRole=emp.role;
+  emp.name=newName;
+  emp.role=newRole;
+  closeOverlay('empEditOverlay');
+  let logText='ویرایش نیرو: '+old;
+  if(old!==newName) logText+=' → '+newName;
+  if(oldRole!==newRole) logText+=' (سمت: '+(oldRole||'—')+' → '+(newRole||'—')+')';
+  mutate(logText);
+};
+
+/* ---- remove employee: fire vs full delete ---- */
+let empActionCtx={ empId:null };
+function openEmpActionModal(id){
+  const emp=DB.employees.find(e=>e.id===id); if(!emp) return;
+  empActionCtx.empId=id;
+  document.getElementById('empActionTitle').textContent = 'حذف نیرو — '+emp.name;
+  closeAllOverlays();
+  document.getElementById('empActionOverlay').classList.add('show');
+}
+document.getElementById('empActionFireBtn').onclick=()=>{
+  const emp=DB.employees.find(e=>e.id===empActionCtx.empId); if(!emp) return;
+  if(!confirm('نیرو "'+emp.name+'" اخراج شود؟ گزارش‌های او حفظ می‌ماند.')) return;
   const todayKey=dateKey(today.jy,today.jm,today.jd);
   emp.active=false;
   emp.leftAt=todayKey;
   if(!emp.inactivePeriods) emp.inactivePeriods=[];
   emp.inactivePeriods.push({ from: todayKey, to: null });
-  mutate('حذف نیرو: '+emp.name);
-}
+  closeOverlay('empActionOverlay');
+  mutate('اخراج نیرو: '+emp.name);
+};
+document.getElementById('empActionWipeBtn').onclick=()=>{
+  const emp=DB.employees.find(e=>e.id===empActionCtx.empId); if(!emp) return;
+  if(!confirm('نیرو "'+emp.name+'" و تمام گزارش‌های او برای همیشه حذف شوند؟ این عملیات قابل بازگشت نیست.')) return;
+  const name=emp.name;
+  DB.employees = DB.employees.filter(e=>e.id!==emp.id);
+  delete DB.records[emp.id];
+  delete DB.bonus[emp.id];
+  closeOverlay('empActionOverlay');
+  mutate('حذف کامل نیرو: '+name);
+};
 
 /* search */
 const searchInput=document.getElementById('searchInput');
@@ -891,7 +1087,7 @@ function fillMonthDaySelects(jy, sel_m, sel_d){
   const mSel=document.getElementById('editMonth');
   mSel.innerHTML=MONTH_NAMES.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
   mSel.value=sel_m;
-  const len=jMonthLength(parseInt(document.getElementById('editYear').value,10)||jy, sel_m);
+  const len=jMonthLength(editYearValue()||jy, sel_m);
   const dSel=document.getElementById('editDay');
   dSel.innerHTML=Array.from({length:len},(_,i)=>i+1).map(d=>`<option value="${d}">${faDigits(d)}</option>`).join('');
   dSel.value=sel_d;
@@ -906,19 +1102,19 @@ function openEditModal(empId, jy, jm, jd){
   editCtx.empId=empId;
   const emp=DB.employees.find(e=>e.id===empId);
   document.getElementById('editEmpName').value = emp? emp.name : '';
-  document.getElementById('editYear').value = jy;
+  document.getElementById('editYear').value = faDigits(jy);
   fillMonthDaySelects(jy, jm, jd);
   refreshEditFieldsForDate();
   loadDayIntoForm();
   document.getElementById('editOverlay').classList.add('show');
 }
-document.getElementById('editYear').addEventListener('change', ()=>{ fillMonthDaySelects(parseInt(document.getElementById('editYear').value,10), parseInt(document.getElementById('editMonth').value,10), 1); refreshEditFieldsForDate(); loadDayIntoForm(); });
-document.getElementById('editMonth').addEventListener('change', ()=>{ fillMonthDaySelects(parseInt(document.getElementById('editYear').value,10), parseInt(document.getElementById('editMonth').value,10), 1); refreshEditFieldsForDate(); loadDayIntoForm(); });
+document.getElementById('editYear').addEventListener('change', ()=>{ document.getElementById('editYear').value=faDigits(editYearValue()||''); fillMonthDaySelects(editYearValue(), parseInt(document.getElementById('editMonth').value,10), 1); refreshEditFieldsForDate(); loadDayIntoForm(); });
+document.getElementById('editMonth').addEventListener('change', ()=>{ fillMonthDaySelects(editYearValue(), parseInt(document.getElementById('editMonth').value,10), 1); refreshEditFieldsForDate(); loadDayIntoForm(); });
 document.getElementById('editDay').addEventListener('change', ()=>{ refreshEditFieldsForDate(); loadDayIntoForm(); });
 document.getElementById('editLeave').addEventListener('change', refreshLeaveVisibility);
 
 function curEditDate(){
-  return { jy: parseInt(document.getElementById('editYear').value,10), jm: parseInt(document.getElementById('editMonth').value,10), jd: parseInt(document.getElementById('editDay').value,10) };
+  return { jy: editYearValue(), jm: parseInt(document.getElementById('editMonth').value,10), jd: parseInt(document.getElementById('editDay').value,10) };
 }
 
 function refreshEditFieldsForDate(){
@@ -929,15 +1125,23 @@ function refreshEditFieldsForDate(){
   const holiday=DB.holidays[key];
   const emp=DB.employees.find(e=>e.id===editCtx.empId);
   const inactive = isInInactivePeriod(emp, key);
+  const notStarted = emp && emp.startDate && key < emp.startDate;
 
-  document.getElementById('saveDayBtn').disabled = inactive;
-  document.getElementById('resetDayBtn').disabled = inactive;
+  document.getElementById('saveDayBtn').disabled = inactive || notStarted;
+  document.getElementById('resetDayBtn').disabled = inactive || notStarted;
 
   if(inactive){
     document.getElementById('fridayFields').style.display='none';
     document.getElementById('normalFields').style.display='none';
     document.getElementById('leaveWrap').style.display='none';
-    document.getElementById('dayTypeNote').textContent = 'این نیرو در این تاریخ حذف/غیرفعال بوده است؛ امکان ثبت ساعت کاری برای این روز وجود ندارد.';
+    document.getElementById('dayTypeNote').textContent = 'این نیرو در این تاریخ اخراج بوده است؛ امکان ثبت ساعت کاری برای این روز وجود ندارد.';
+    return;
+  }
+  if(notStarted){
+    document.getElementById('fridayFields').style.display='none';
+    document.getElementById('normalFields').style.display='none';
+    document.getElementById('leaveWrap').style.display='none';
+    document.getElementById('dayTypeNote').textContent = 'این نیرو در این تاریخ هنوز استخدام نشده بوده است؛ امکان ثبت ساعت کاری برای این روز وجود ندارد.';
     return;
   }
   document.getElementById('fridayFields').style.display = isFriday? 'block':'none';
@@ -972,7 +1176,8 @@ document.getElementById('saveDayBtn').onclick=()=>{
   const key=dateKey(jy,jm,jd);
   const empId=editCtx.empId;
   const emp=DB.employees.find(e=>e.id===empId);
-  if(isInInactivePeriod(emp, key)){ alert('این نیرو در این تاریخ حذف/غیرفعال بوده است؛ امکان ثبت وجود ندارد.'); return; }
+  if(isInInactivePeriod(emp, key)){ alert('این نیرو در این تاریخ اخراج بوده است؛ امکان ثبت وجود ندارد.'); return; }
+  if(emp && emp.startDate && key < emp.startDate){ alert('این نیرو در این تاریخ هنوز استخدام نشده بوده است؛ امکان ثبت وجود ندارد.'); return; }
   const dIdx=iranWeekdayIdx(jy,jm,jd);
   const isFriday=dIdx===6;
   const isThursday=dIdx===5;
@@ -1264,6 +1469,13 @@ document.getElementById('chartSortAsc').onclick=()=>{ chartSortDir='asc'; render
 function sanitizeSheetName(name){
   return name.replace(/[\\\/\?\*\[\]:]/g,' ').slice(0,31) || 'Sheet';
 }
+function employeeExportLabel(emp){
+  if(!emp) return '';
+  let label=emp.name;
+  if(emp.role) label += ' — '+emp.role;
+  if(emp.active===false) label += ' (اخراج شده)';
+  return label;
+}
 function buildEmployeeSheetData(empId, jy, jm){
   const emp=DB.employees.find(e=>e.id===empId);
   const {rows,sum} = monthSummary(empId, jy, jm);
@@ -1293,12 +1505,17 @@ function buildEmployeeSheetData(empId, jy, jm){
     aoa.push([bonusRec.type==='bonus'?'پاداش':'جریمه', faDigits(bonusRec.amount.toLocaleString('en-US'))+' تومان', bonusRec.note||'', '', '', '']);
     rowMeta.push('bonus');
   }
-  return { aoa, rowMeta, name: emp? emp.name : empId };
+  const label = employeeExportLabel(emp);
+  aoa.unshift([label,'','','','','']);
+  return { aoa, rowMeta, name: emp? emp.name : empId, label };
 }
 function styleSheet(ws, aoa, rowMeta){
   const range = XLSX.utils.decode_range(ws['!ref']);
   ws['!sheetViews']=[{ rightToLeft:true }];
-  const colWidths = aoa[0].map((_,c)=>{
+  const colCount = aoa[1] ? aoa[1].length : aoa[0].length;
+  if(!ws['!merges']) ws['!merges']=[];
+  ws['!merges'].push({ s:{r:0,c:0}, e:{r:0,c:colCount-1} });
+  const colWidths = (aoa[1]||aoa[0]).map((_,c)=>{
     let max=6;
     aoa.forEach(r=>{ const v=r[c]==null?'':String(r[c]); if(v.length>max) max=v.length; });
     return { wch: max+3 };
@@ -1309,9 +1526,10 @@ function styleSheet(ws, aoa, rowMeta){
       const addr=XLSX.utils.encode_cell({r:R,c:C});
       if(!ws[addr]) continue;
       let fill=null;
-      if(R===0) fill='0D9488';
+      if(R===0) fill='1F2937';
+      else if(R===1) fill='0D9488';
       else{
-        const kind=rowMeta[R-1];
+        const kind=rowMeta[R-2];
         if(kind==='friday') fill='EDE9FE';
         else if(kind==='leave') fill='D1FAE5';
         else if(kind==='holiday') fill='FEE2E2';
@@ -1320,7 +1538,7 @@ function styleSheet(ws, aoa, rowMeta){
       }
       ws[addr].s = {
         alignment:{ horizontal:'center', vertical:'center', wrapText:true },
-        font: R===0? { bold:true, color:{rgb:'FFFFFF'} } : (rowMeta[R-1]==='sum'? {bold:true,color:{rgb:'FFFFFF'}}:{}),
+        font: (R===0||R===1)? { bold:true, color:{rgb:'FFFFFF'} } : (rowMeta[R-2]==='sum'? {bold:true,color:{rgb:'FFFFFF'}}:{}),
         fill: fill? { fgColor:{rgb:fill} } : undefined
       };
     }
@@ -1339,7 +1557,7 @@ function exportAllExcel(jy, jm){
   const used={};
   DB.employees.forEach(e=>{
     const hasData = DB.records[e.id] && Object.keys(DB.records[e.id]).some(k=>k.startsWith(jy+'-'+pad2(jm)));
-    if(!hasData && e.active===false) return; // skip inactive with no data this month
+    if(!hasData && e.active===false) return; // skip fired employees with no data this month
     const {aoa, rowMeta, name} = buildEmployeeSheetData(e.id, jy, jm);
     const ws=XLSX.utils.aoa_to_sheet(aoa);
     styleSheet(ws, aoa, rowMeta);
@@ -1402,7 +1620,7 @@ function reportSectionHtml(empId, jy, jm){
   if(bonusRec){
     rowsHtml+=`<tr class="bonus"><td colspan="6">${bonusRec.type==='bonus'?'پاداش':'جریمه'}: ${faDigits(bonusRec.amount.toLocaleString('en-US'))} تومان${bonusRec.note? (' — '+escapeHtml(bonusRec.note)):''}</td></tr>`;
   }
-  return `<h2>${emp?emp.name:''} — ${MONTH_NAMES[jm-1]} ${faDigits(jy)}</h2>
+  return `<h2>${escapeHtml(employeeExportLabel(emp))} — ${MONTH_NAMES[jm-1]} ${faDigits(jy)}</h2>
     <table><thead><tr><th>روز</th><th>روز هفته</th><th>ورود</th><th>خروج</th><th>توضیحات</th><th>کسری/اضافه‌کار</th></tr></thead>
     <tbody>${rowsHtml}</tbody></table>`;
 }
@@ -1419,7 +1637,11 @@ document.getElementById('repExportPdf').onclick=()=>{
 };
 document.getElementById('exportAllPdfBtn').onclick=()=>{
   let html='';
-  activeEmployees().forEach(e=>{ html+=reportSectionHtml(e.id, chartYM.jy, chartYM.jm); });
+  DB.employees.forEach(e=>{
+    const hasData = DB.records[e.id] && Object.keys(DB.records[e.id]).some(k=>k.startsWith(chartYM.jy+'-'+pad2(chartYM.jm)));
+    if(!hasData && e.active===false) return; // skip fired employees with no data this month
+    html+=reportSectionHtml(e.id, chartYM.jy, chartYM.jm);
+  });
   printHtmlReport('گزارش کلی حضور و غیاب - '+MONTH_NAMES[chartYM.jm-1]+' '+faDigits(chartYM.jy), html);
 };
 
@@ -1494,6 +1716,7 @@ document.getElementById('backupFileInput').addEventListener('change', (ev)=>{
       if(!confirm('بازیابی از فایل پشتیبان، تمام داده‌های فعلی را جایگزین می‌کند. ادامه می‌دهید؟')) return;
       DB = Object.assign({employees:[],records:{},bonus:{},holidays:{},logs:[],settings:{workIn:'08:00',workOut:'18:00',thuOut:'14:00',reminderHour:17,reminderMinute:0}}, parsed);
       DB.settings = Object.assign({workIn:'08:00',workOut:'18:00',thuOut:'14:00',reminderHour:17,reminderMinute:0}, DB.settings||{});
+      ensureManagerSeed();
       mutate('بازیابی داده‌ها از فایل پشتیبان');
       document.getElementById('ghStatus').textContent = 'داده‌ها از فایل بازیابی شد. برای هماهنگ‌سازی، دوباره به گیت‌هاب ذخیره خواهد شد.';
     }catch(e){
@@ -1509,7 +1732,7 @@ function renderHolList(){
   const keys=Object.keys(DB.holidays);
   if(keys.length===0){ wrap.innerHTML='هیچ تعطیلی رسمی ثبت نشده'; return; }
   wrap.innerHTML = keys.sort().map(k=>`<div style="display:flex;justify-content:space-between;margin-bottom:6px">
-    <span>${k} — ${escapeHtml(DB.holidays[k])}</span>
+    <span>${faDigits(k)} — ${escapeHtml(DB.holidays[k])}</span>
     <span style="cursor:pointer;color:var(--bad)" onclick="removeHoliday('${k}')">حذف</span></div>`).join('');
 }
 document.getElementById('addHolBtn').onclick=()=>{
