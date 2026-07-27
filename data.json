@@ -130,10 +130,15 @@
     {
       "id": "ems39gn32sy09k",
       "name": "نیروی تستی",
-      "active": true,
+      "active": false,
       "createdAt": "1405-05-05",
-      "leftAt": null,
-      "inactivePeriods": []
+      "leftAt": "1405-05-05",
+      "inactivePeriods": [
+        {
+          "from": "1405-05-05",
+          "to": null
+        }
+      ]
     }
   ],
   "records": {
@@ -172,6 +177,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-07-27T14:05:37.608Z",
+      "text": "حذف نیرو: نیروی تستی"
+    },
     {
       "ts": "2026-07-27T13:55:13.874Z",
       "text": "تغییر زمان یادآور به 02:13"
