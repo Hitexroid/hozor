@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>حضور و غیاب</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style/dist/xlsx.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0a0c10; --bg2:#12151d; --bg3:#171b26;
+  --card:rgba(255,255,255,.045); --card2:rgba(255,255,255,.07);
+  --border:rgba(255,255,255,.09); --border2:rgba(255,255,255,.15);
+  --text:#e9ebf1; --muted:#8b93a7; --muted2:#5f677a;
+  --accent:#2dd4bf; --accent-d:#0d9488; --accent2:#a78bfa;
+  --good:#34d399; --warn:#fbbf24; --bad:#f87171;
+  --radius:16px; --radius-sm:10px;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+body[data-theme="light"]{
+  --bg:#f4f5f8; --bg2:#ffffff; --bg3:#eef0f4;
+  --card:rgba(15,23,42,.04); --card2:rgba(15,23,42,.07);
+  --border:rgba(15,23,42,.10); --border2:rgba(15,23,42,.16);
+  --text:#161a23; --muted:#5b6373; --muted2:#8a92a3;
+  --accent:#0d9488; --accent-d:#0d9488; --accent2:#7c3aed;
+  --good:#059669; --warn:#d97706; --bad:#dc2626;
+  --shadow: 0 10px 30px rgba(15,23,42,.12);
+}
+body[data-theme="light"] body{background:var(--bg)}
+body[data-theme="light"]{
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(13,148,136,.07), transparent 60%),
+    radial-gradient(900px 500px at -10% 10%, rgba(124,58,237,.06), transparent 55%),
+    var(--bg);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(45,212,191,.10), transparent 60%),
+    radial-gradient(900px 500px at -10% 10%, rgba(167,139,250,.10), transparent 55%),
+    var(--bg);
+  color:var(--text);
+  font-family:'Vazirmatn', Tahoma, sans-serif;
+  min-height:100vh;
+  padding-bottom:60px;
+}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+a{color:inherit}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+
+.wrap{max-width:1100px;margin:0 auto;padding:18px 16px}
+
+/* header */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .dot{width:12px;height:12px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 16px var(--accent)}
+.brand h1{font-size:18px;font-weight:800;margin:0}
+.brand small{color:var(--muted);font-weight:500;display:block;font-size:11px}
+.top-actions{display:flex;align-items:center;gap:10px}
+.sync-badge{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:20px;background:var(--card)}
+.sync-badge.saving{color:var(--warn)}
+.sync-badge.ok{color:var(--good)}
+.sync-badge.err{color:var(--bad)}
+.burger{width:42px;height:42px;border-radius:12px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+.burger:hover{background:var(--card2)}
+.burger svg{width:20px;height:20px}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px;backdrop-filter:blur(8px)}
+.card h2{margin:0 0 12px;font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.card h2 .badge{background:var(--card2);color:var(--muted);font-size:11px;padding:3px 8px;border-radius:20px;font-weight:600}
+
+/* quick entry / search */
+.search-box{position:relative}
+.search-input{width:100%;padding:16px 18px;border-radius:14px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:16px;outline:none;transition:.2s}
+.search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,212,191,.15)}
+.search-results{position:absolute;top:calc(100% + 8px);right:0;left:0;background:var(--bg3);border:1px solid var(--border2);border-radius:14px;overflow:hidden;z-index:50;box-shadow:var(--shadow);max-height:260px;overflow-y:auto}
+.search-item{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.search-item:last-child{border-bottom:none}
+.search-item:hover{background:var(--card2)}
+.search-item .nm{font-weight:600}
+.search-item .st{font-size:11px;color:var(--muted)}
+
+.today-pill{display:inline-flex;gap:6px;align-items:center;color:var(--muted);font-size:12px;margin-top:10px}
+.today-pill b{color:var(--accent)}
+
+/* employee list */
+.emp-grid{display:flex;flex-direction:column;gap:8px}
+.emp-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;gap:10px}
+.emp-row .nm-wrap{display:flex;flex-direction:column;gap:2px;cursor:pointer;min-width:0}
+.emp-row .nm{font-weight:600}
+.emp-row .nm-wrap:hover .nm{color:var(--accent)}
+.emp-row .role-tag{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.emp-row .crown{color:var(--warn);font-size:12px}
+.emp-row .icons{display:flex;gap:6px;flex-shrink:0}
+.icon-btn{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.icon-btn:hover{color:var(--text);background:var(--card2)}
+.icon-btn.danger:hover{color:var(--bad)}
+.inactive-row{opacity:.55}
+.toggle-link{font-size:12px;color:var(--muted);text-decoration:underline;cursor:pointer;margin-top:6px;display:inline-block}
+.add-row{display:flex;gap:8px;margin-top:12px}
+.add-row input{flex:1;padding:11px 14px;border-radius:12px;background:var(--bg3);border:1px solid var(--border);color:var(--text);outline:none}
+.btn{padding:11px 18px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent-d));color:#03201c;font-weight:700;font-size:13px}
+.btn.secondary{background:var(--card2);color:var(--text);border:1px solid var(--border2)}
+.btn.ghost{background:transparent;border:1px solid var(--border2);color:var(--text)}
+.btn.danger{background:linear-gradient(135deg,#f87171,#dc2626);color:#fff}
+.btn:disabled{opacity:.5}
+
+/* calendar widget */
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-nav{display:flex;align-items:center;gap:8px}
+.cal-nav button{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;touch-action:pan-y}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
+.cal-weekdays span{text-align:center;font-size:11px;font-weight:700;color:var(--muted)}
+.cal-day.empty-slot{background:transparent;border-color:transparent;cursor:default}
+.cal-day{aspect-ratio:1/1;border-radius:10px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;cursor:pointer;position:relative}
+.cal-day:hover{background:var(--card2)}
+.cal-day.friday{background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.25)}
+.cal-day.holiday{background:rgba(248,113,113,.10);border-color:rgba(248,113,113,.3)}
+.cal-day.manual::after{content:'';position:absolute;inset:-1px;border-radius:10px;border:2px solid var(--accent);pointer-events:none}
+.cal-day.future{opacity:.35;cursor:default}
+.cal-legend{display:flex;gap:14px;margin-top:10px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+.cal-legend span{display:inline-flex;align-items:center;gap:5px}
+.lg-dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(3,5,8,.65);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;z-index:200;padding:30px 14px;overflow-y:auto}
+.overlay.show{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;max-width:760px;width:100%;padding:22px;box-shadow:var(--shadow);animation:pop .15s ease}
+@keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modal-head h3{margin:0;font-size:16px}
+.close-x{width:34px;height:34px;border-radius:10px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;padding:11px 13px;border-radius:11px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);outline:none}
+.field-row{display:flex;gap:10px}
+.field-row .field{flex:1}
+.chk{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:12px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+
+/* report table */
+.report-toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+table.rep{width:100%;border-collapse:collapse;font-size:13px}
+table.rep th{background:var(--bg3);color:var(--muted);font-weight:700;padding:9px 6px;position:sticky;top:0}
+table.rep td{padding:8px 6px;border-bottom:1px solid var(--border);text-align:center}
+table.rep tr.friday td{background:rgba(167,139,250,.05)}
+table.rep tr.leave td{background:rgba(52,211,153,.06)}
+table.rep tr.holiday td{background:rgba(248,113,113,.06)}
+table.rep tr.future td{color:var(--muted2)}
+.diff-pos{color:var(--good);font-weight:700}
+.diff-neg{color:var(--bad);font-weight:700}
+.diff-zero{color:var(--muted)}
+.table-wrap{max-height:440px;overflow-y:auto;border-radius:12px;border:1px solid var(--border)}
+.mini-edit{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted)}
+
+.bp-box{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:13px}
+.bp-tag{font-weight:700}
+.bp-tag.bonus{color:var(--good)}
+.bp-tag.penalty{color:var(--bad)}
+
+.log-list{max-height:170px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted)}
+.log-item{border-bottom:1px dashed var(--border);padding-bottom:6px}
+.log-item b{color:var(--text)}
+
+.side{position:fixed;top:0;left:0;height:100%;width:320px;max-width:88vw;background:var(--bg2);border-left:1px solid var(--border2);z-index:300;transform:translateX(-105%);transition:.25s;padding:20px;overflow-y:auto}
+.side.show{transform:translateX(0)}
+.side h3{margin-top:0}
+.side .field{margin-bottom:14px}
+.hint{font-size:11px;color:var(--muted2);line-height:1.7}
+
+.month-switch{display:flex;align-items:center;gap:8px}
+.month-switch button{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text)}
+.month-switch .lbl{font-weight:700;min-width:110px;text-align:center}
+
+.empty{color:var(--muted2);font-size:13px;text-align:center;padding:20px 0}
+
+.choice-row{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.choice-card{display:flex;align-items:flex-start;gap:10px;padding:14px;border-radius:12px;border:1px solid var(--border2);background:var(--bg3);text-align:right;width:100%}
+.choice-card b{display:block;margin-bottom:4px;font-size:14px}
+.choice-card span{font-size:12px;color:var(--muted);line-height:1.6}
+.choice-card.fire{border-color:rgba(251,191,36,.4)}
+.choice-card.fire:hover{background:rgba(251,191,36,.08)}
+.choice-card.wipe{border-color:rgba(248,113,113,.4)}
+.choice-card.wipe:hover{background:rgba(248,113,113,.08)}
+
+/* unified role icons */
+.role-ico{width:20px;height:20px;border-radius:7px;background:var(--card2);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted)}
+.role-ico svg{width:12px;height:12px}
+.role-ico.mgr{background:rgba(251,191,36,.14);border-color:rgba(251,191,36,.35);color:var(--warn)}
+.emp-row .role-tag{gap:6px}
+.name-crown{display:inline-flex;color:var(--warn);flex-shrink:0}
+.name-crown svg{width:14px;height:14px}
+.icon-btn svg{width:15px;height:15px}
+.mini-edit svg{width:14px;height:14px}
+.mini-edit{display:inline-flex;align-items:center;justify-content:center}
+
+/* overtime rule cards */
+.ot-card{border:1px solid var(--border);border-radius:12px;padding:11px 12px;margin-bottom:8px;background:var(--bg3)}
+.ot-card .ot-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:8px}
+.ot-card .ot-name{color:var(--text);font-size:13px;font-weight:700}
+.ot-card .ot-status{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.ot-card .ot-status.on{color:var(--good);background:rgba(52,211,153,.12)}
+.ot-card .ot-status.off{color:var(--muted);background:var(--card2)}
+.ot-card .ot-meta{font-size:11px;color:var(--muted);line-height:1.9}
+.ot-card .ot-actions{display:flex;gap:6px;margin-top:8px}
+.ot-card .ot-actions button{padding:6px 12px;font-size:11px}
+.wd-chk{display:inline-flex;align-items:center;gap:5px;font-size:12px;background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:6px 9px;cursor:pointer}
+.wd-chk input{margin:0}
+
+/* motivational quote */
+.quote-box{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px;line-height:2;position:relative}
+.quote-box .quote-mark{font-size:34px;color:var(--accent);opacity:.35;line-height:1;margin-bottom:4px;font-family:Georgia,serif}
+#quoteText{max-width:560px;margin:0 auto;font-weight:600;color:var(--text);opacity:.85}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="dot"></span>
+      <div>
+        <h1>حضور و غیاب</h1>
+        <small id="todayLine">—</small>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div class="sync-badge" id="syncBadge">آماده</div>
+      <button class="burger" id="themeToggleBtn" title="تغییر تم شب/روز">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-linecap="round"/></svg>
+      </button>
+      <button class="burger" id="burgerBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- quick entry -->
+  <div class="card">
+    <h2>ثبت سریع تردد</h2>
+    <div class="search-box">
+      <input type="text" class="search-input" id="searchInput" placeholder="نام نیرو را جستجو کنید... مثلاً: س">
+      <div class="search-results" id="searchResults"></div>
+    </div>
+    <div class="today-pill">امروز: <b id="todayPill">—</b></div>
+  </div>
+
+  <!-- employee list / manage -->
+  <div class="card">
+    <h2>نیروها <span class="badge" id="empCountBadge">۰ نیرو</span></h2>
+    <div class="emp-grid" id="empList"></div>
+    <span class="toggle-link" id="toggleInactive">نمایش نیروهای اخراجی</span>
+    <div class="add-row">
+      <button class="btn" id="addEmpBtn" style="width:100%">+ افزودن نیروی جدید</button>
+    </div>
+  </div>
+
+  <!-- monthly ranking chart -->
+  <div class="card">
+    <h2>عملکرد ماهانه نیروها</h2>
+    <div class="report-toolbar">
+      <div class="month-switch" id="chartMonthSwitch"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn secondary" id="chartSortDesc">بیشترین</button>
+        <button class="btn secondary" id="chartSortAsc">کمترین</button>
+        <button class="btn secondary" id="exportAllBtn">خروجی اکسل کل</button>
+        <button class="btn secondary" id="exportAllPdfBtn">خروجی PDF کل</button>
+      </div>
+    </div>
+    <canvas id="rankChart" height="110"></canvas>
+  </div>
+
+  <!-- calendar widget -->
+  <div class="card">
+    <h2>تقویم ماه</h2>
+    <div class="cal-head">
+      <div class="cal-nav" id="calMonthSwitch"></div>
+      <button class="btn secondary" id="calTodayBtn" style="padding:6px 14px;font-size:12px">امروز</button>
+    </div>
+    <div class="cal-weekdays" id="calWeekdays"></div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-legend">
+      <span><i class="lg-dot" style="background:rgba(167,139,250,.35)"></i> جمعه</span>
+      <span><i class="lg-dot" style="background:rgba(248,113,113,.35)"></i> تعطیل رسمی</span>
+      <span><i class="lg-dot" style="border:2px solid var(--accent);background:transparent"></i> ثبت دستی دارد</span>
+    </div>
+  </div>
+
+  <!-- recent changes this month -->
+  <div class="card">
+    <h2>آخرین تغییرات این ماه</h2>
+    <div class="log-list" id="mainLog" style="max-height:280px"></div>
+  </div>
+
+  <!-- motivational quote -->
+  <div class="quote-box" id="quoteBox">
+    <div class="quote-mark">”</div>
+    <div id="quoteText"></div>
+  </div>
+
+</div>
+
+<!-- sidebar / hamburger menu -->
+<div class="overlay" id="sideOverlay"></div>
+<div class="side" id="sidePanel">
+  <h3>تنظیمات و اتصال گیت‌هاب</h3>
+  <div class="field"><label>نام کاربری / سازمان گیت‌هاب</label><input id="ghOwner" placeholder="مثلاً: mycompany"></div>
+  <div class="field"><label>نام مخزن (Repository)</label><input id="ghRepo" placeholder="attendance-data"></div>
+  <div class="field"><label>نام برنچ</label><input id="ghBranch" placeholder="main" value="main"></div>
+  <div class="field"><label>مسیر فایل داده</label><input id="ghPath" placeholder="data.json" value="data.json"></div>
+  <div class="field"><label>Personal Access Token</label><input id="ghToken" type="password" placeholder="ghp_..."></div>
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <button class="btn" id="saveSettingsBtn">ذخیره تنظیمات</button>
+    <button class="btn secondary" id="reloadGhBtn">بارگذاری از گیت‌هاب</button>
+  </div>
+  <div class="hint" id="ghStatus">هنوز متصل نشده است.</div>
+  <hr style="border-color:var(--border);margin:18px 0">
+  <h3>ساعات کاری پیش‌فرض</h3>
+  <div class="field-row">
+    <div class="field"><label>ساعت ورود پیش‌فرض</label><input id="wsIn" type="time"></div>
+    <div class="field"><label>ساعت خروج پیش‌فرض</label><input id="wsOut" type="time"></div>
+  </div>
+  <div class="field"><label>ساعت خروج پنج‌شنبه</label><input id="wsThuOut" type="time"></div>
+  <button class="btn secondary" id="saveWorkHoursBtn" style="margin-bottom:6px">ذخیره ساعات کاری</button>
+  <div class="hint">این ساعات به‌عنوان پیش‌فرض روزهای عادی و پنج‌شنبه در نظر گرفته می‌شود و مبنای محاسبه‌ی کسری/اضافه‌کار قرار می‌گیرد. برای هر نیرو در هر روز، همچنان می‌توانید ساعت متفاوتی به‌صورت دستی ثبت کنید.</div>
+  <hr style="border-color:var(--border);margin:18px 0">
+  <h3>اضافه‌کاری ویژه‌ی یک نیرو</h3>
+  <div class="hint" style="margin-bottom:10px">برای یک نیروی خاص، از یک تاریخ مشخص (یا از امروز)، می‌توانید چند ساعت اضافه‌کار ثابت روی ساعت خروج پیش‌فرض او در نظر بگیرید؛ مثلاً اگر خروج آن روز ۱۸ بود، بشود ۱۹. تعطیلات رسمی همیشه مستثنی هستند. در حالت «همه‌ی روزها»، جمعه هم مستثنی است؛ اگر لازم است اضافه‌کار فقط برای جمعه‌ها (یا هر ترکیبی از روزهای هفته از جمله جمعه) حساب شود، گزینه‌ی «فقط روزهای خاص هفته» را انتخاب کنید. این قانون فقط روی روزهایی اثر می‌گذارد که برای آن‌ها به‌صورت دستی ورود/خروج ثبت نشده باشد.</div>
+  <div class="field"><label>نیرو</label><select id="otEmpSelect"></select></div>
+  <div class="field-row">
+    <div class="field"><label>از تاریخ (شمسی)</label><input id="otStartDate" placeholder="۱۴۰۳-۰۵-۳۱"></div>
+    <div class="field"><label>میزان اضافه‌کاری (ساعت)</label><input id="otHours" type="number" step="0.25" min="0.25" placeholder="1"></div>
+  </div>
+  <button class="btn ghost" id="otTodayBtn" style="margin-bottom:12px;padding:8px 14px;font-size:12px">تاریخ = امروز</button>
+  <div class="field"><label>شمول</label>
+    <select id="otScope">
+      <option value="all">همه‌ی روزها (به‌جز جمعه و تعطیل رسمی)</option>
+      <option value="weekdays">فقط روزهای خاص هفته</option>
+    </select>
+  </div>
+  <div id="otWeekdaysWrap" class="field" style="display:none">
+    <label>روزهای هفته</label>
+    <div id="otWeekdaysChks" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+  </div>
+  <button class="btn secondary" id="addOtRuleBtn" style="margin-bottom:10px">افزودن قانون اضافه‌کاری</button>
+  <div id="otRulesList"></div>
+  <hr style="border-color:var(--border);margin:18px 0">
+  <h3>تعطیلات رسمی</h3>
+  <div class="field-row">
+    <div class="field"><label>تاریخ (شمسی)</label><input id="holDate" placeholder="1403-05-31"></div>
+    <div class="field"><label>عنوان</label><input id="holTitle" placeholder="عاشورا"></div>
+  </div>
+  <button class="btn secondary" id="addHolBtn" style="margin-bottom:10px">افزودن تعطیلی رسمی</button>
+  <div id="holList" class="hint"></div>
+  <hr style="border-color:var(--border);margin:18px 0">
+  <h3>یادآور ثبت تردد</h3>
+  <div class="hint" style="margin-bottom:10px">در ساعت تنظیم‌شده، در صورت باز بودن این صفحه در مرورگر، یک پیغام یادآوری برای ثبت ورود/خروج نمایش داده می‌شود.</div>
+  <div class="field-row">
+    <div class="field"><label>ساعت یادآور</label><input id="remHour" type="number" min="0" max="23" placeholder="17"></div>
+    <div class="field"><label>دقیقه</label><input id="remMinute" type="number" min="0" max="59" placeholder="0"></div>
+  </div>
+  <button class="btn secondary" id="saveReminderTimeBtn" style="margin-bottom:10px">ذخیره زمان یادآور</button>
+  <button class="btn secondary" id="enableReminderBtn" style="margin-bottom:10px">فعال‌سازی یادآور</button>
+  <div class="hint" id="reminderStatus"></div>
+  <hr style="border-color:var(--border);margin:18px 0">
+  <h3>پشتیبان‌گیری از داده‌ها</h3>
+  <div class="hint" style="margin-bottom:10px">علاوه بر ذخیره‌ی خودکار در گیت‌هاب، می‌توانید یک نسخه‌ی پشتیبان محلی از کل داده‌ها بگیرید یا از یک فایل پشتیبان قبلی بازیابی کنید.</div>
+  <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+    <button class="btn secondary" id="backupDownloadBtn">دانلود پشتیبان (JSON)</button>
+    <button class="btn secondary" id="backupRestoreBtn">بازیابی از فایل</button>
+  </div>
+  <input type="file" id="backupFileInput" accept="application/json" style="display:none">
+  <hr style="border-color:var(--border);margin:18px 0">
+  <div class="hint">داده‌ها به‌صورت خودکار پس از هر تغییر، در فایل داده‌ی مخزن گیت‌هاب شما ذخیره می‌شوند. نیازی به فشردن دکمه‌ی ذخیره نیست.</div>
+</div>
+
+<!-- unified attendance edit modal -->
+<div class="overlay" id="editOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="editTitle">ثبت تردد</h3>
+      <div class="close-x" data-close="editOverlay">✕</div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>نیرو</label><input id="editEmpName" disabled></div>
+      <div class="field"><label>سال</label><input id="editYear" type="text" inputmode="numeric"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>ماه</label><select id="editMonth"></select></div>
+      <div class="field"><label>روز</label><select id="editDay"></select></div>
+    </div>
+    <div id="dayTypeNote" class="hint" style="margin-bottom:10px"></div>
+
+    <div id="leaveWrap" class="chk">
+      <input type="checkbox" id="editLeave">
+      <label for="editLeave" style="margin:0">مرخصی</label>
+    </div>
+
+    <div id="normalFields" class="field-row">
+      <div class="field"><label>ساعت ورود</label><input id="editIn" placeholder="08:00"></div>
+      <div class="field"><label>ساعت خروج</label><input id="editOut" placeholder="18:00"></div>
+    </div>
+
+    <div id="fridayFields" class="field" style="display:none">
+      <label>میزان اضافه‌کاری (ساعت)</label>
+      <input id="editOvertime" type="number" step="0.25" placeholder="0">
+    </div>
+
+    <div class="field"><label>توضیحات</label><textarea id="editNote" rows="2" placeholder="توضیح اضافه (اختیاری)"></textarea></div>
+
+    <div class="modal-actions">
+      <button class="btn danger" id="resetDayBtn">حذف ثبت دستی (بازگشت به پیش‌فرض)</button>
+      <button class="btn secondary" data-close="editOverlay">انصراف</button>
+      <button class="btn" id="saveDayBtn">ذخیره</button>
+    </div>
+  </div>
+</div>
+
+<!-- calendar day-detail modal -->
+<div class="overlay" id="calDayOverlay">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-head">
+      <h3 id="calDayTitle">جزئیات روز</h3>
+      <div class="close-x" data-close="calDayOverlay">✕</div>
+    </div>
+    <div id="calDayBody" class="hint"></div>
+  </div>
+</div>
+
+<!-- monthly report modal -->
+<div class="overlay" id="reportOverlay">
+  <div class="modal" style="max-width:940px">
+    <div class="modal-head">
+      <h3 id="reportTitle">گزارش ماهانه</h3>
+      <div class="close-x" data-close="reportOverlay">✕</div>
+    </div>
+
+    <div class="report-toolbar">
+      <div class="month-switch" id="reportMonthSwitch"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn secondary" id="repExportXlsx">خروجی اکسل</button>
+        <button class="btn secondary" id="repExportPdf">خروجی PDF</button>
+      </div>
+    </div>
+
+    <div class="bp-box" id="bpBox"></div>
+
+    <div class="table-wrap">
+      <table class="rep" id="reportTable">
+        <thead><tr>
+          <th>روز</th><th>روز هفته</th><th>ورود</th><th>خروج</th><th>توضیحات</th><th>کسری/اضافه‌کار</th><th></th>
+        </tr></thead>
+        <tbody id="reportBody"></tbody>
+        <tfoot><tr>
+          <td colspan="5" style="text-align:left;font-weight:700">جمع کل اضافه‌کار این ماه</td>
+          <td id="reportSum" style="font-weight:800"></td><td></td>
+        </tr></tfoot>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- add employee modal -->
+<div class="overlay" id="addEmpOverlay">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head">
+      <h3>افزودن نیروی جدید</h3>
+      <div class="close-x" data-close="addEmpOverlay">✕</div>
+    </div>
+    <div class="field"><label>نام نیرو</label><input type="text" id="addEmpName" placeholder="نام نیروی جدید"></div>
+    <div class="field"><label>سمت</label><select id="addEmpRole"></select></div>
+    <div class="chk">
+      <input type="checkbox" id="addEmpIsNew">
+      <label for="addEmpIsNew" style="margin:0">این نیرو تازه استخدام شده و از امروز شروع به کار کرده است</label>
+    </div>
+    <div class="hint" id="addEmpNewHint" style="margin-bottom:6px">در صورت فعال بودن این گزینه، برای روزهای قبل از امروز در همین ماه، هیچ ساعت کاری (پیش‌فرض یا دستی) برای این نیرو محاسبه نخواهد شد و صفر ثبت می‌شود.</div>
+    <div class="modal-actions">
+      <button class="btn secondary" data-close="addEmpOverlay">انصراف</button>
+      <button class="btn" id="saveAddEmpBtn">افزودن نیرو</button>
+    </div>
+  </div>
+</div>
+
+<!-- edit employee (name + role) modal -->
+<div class="overlay" id="empEditOverlay">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head">
+      <h3>ویرایش نیرو</h3>
+      <div class="close-x" data-close="empEditOverlay">✕</div>
+    </div>
+    <div class="field"><label>نام نیرو</label><input type="text" id="empEditName"></div>
+    <div class="field"><label>سمت</label><select id="empEditRole"></select></div>
+    <div class="modal-actions">
+      <button class="btn secondary" data-close="empEditOverlay">انصراف</button>
+      <button class="btn" id="saveEmpEditBtn">ذخیره</button>
+    </div>
+  </div>
+</div>
+
+<!-- remove employee: fire vs full delete -->
+<div class="overlay" id="empActionOverlay">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head">
+      <h3 id="empActionTitle">حذف نیرو</h3>
+      <div class="close-x" data-close="empActionOverlay">✕</div>
+    </div>
+    <div class="choice-row">
+      <button class="choice-card fire" id="empActionFireBtn">
+        <span>
+          <b>اخراج</b>
+          <span>گزارش‌ها و سوابق این نیرو حفظ می‌شود و در اکسل/PDF با برچسب «اخراج شده» نمایش داده می‌شود. تا زمانی که دوباره با همین نام اضافه نشود، هیچ ساعت کاری (خودکار یا دستی) برای او ثبت نخواهد شد.</span>
+        </span>
+      </button>
+      <button class="choice-card wipe" id="empActionWipeBtn">
+        <span>
+          <b>حذف کامل</b>
+          <span>این نیرو و تمام گزارش‌های او به‌طور کامل و از ریشه حذف می‌شوند و دیگر در هیچ خروجی اکسل یا PDF ظاهر نخواهد شد. برای نیروهای تستی مناسب است.</span>
+        </span>
+      </button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" data-close="empActionOverlay">انصراف</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   THEME (day/night)
+   ============================================================ */
+(function(){
+  const saved = localStorage.getItem('attendance_theme') || 'dark';
+  document.body.setAttribute('data-theme', saved);
+})();
+function applyThemeIcon(){
+  const t = document.body.getAttribute('data-theme');
+  document.getElementById('themeIconMoon').style.display = t==='light' ? 'block':'none';
+  document.getElementById('themeIconSun').style.display = t==='light' ? 'none':'block';
+}
+document.getElementById('themeToggleBtn').onclick=()=>{
+  const cur = document.body.getAttribute('data-theme');
+  const next = cur==='light' ? 'dark':'light';
+  document.body.setAttribute('data-theme', next);
+  localStorage.setItem('attendance_theme', next);
+  applyThemeIcon();
+};
+applyThemeIcon();
+
+/* ============================================================
+   JALALI CALENDAR CONVERSION (standard algorithm)
+   ============================================================ */
+function div(a,b){return ~~(a/b)}
+function mod(a,b){return a-~~(a/b)*b}
+function jalCal(jy){
+  var breaks=[-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178];
+  var bl=breaks.length, gy=jy+621, leapJ=-14, jp=breaks[0], jm,jump,leap,leapG,march,n,i;
+  for(i=1;i<bl;i+=1){ jm=breaks[i]; jump=jm-jp; if(jy<jm) break; leapJ=leapJ+div(jump,33)*8+div(mod(jump,33),4); jp=jm; }
+  n=jy-jp;
+  leapJ=leapJ+div(n,33)*8+div(mod(n,33)+3,4);
+  if(mod(jump,33)===4 && jump-n===4) leapJ+=1;
+  leapG=div(gy,4)-div((div(gy,100)+1)*3,4)-150;
+  march=20+leapJ-leapG;
+  if(jump-n<6) n=n-jump+div(jump,33)*33;
+  leap=mod(mod(n+1,33)-1,4);
+  if(leap===-1) leap=4;
+  return {leap:leap, gy:gy, march:march};
+}
+function g2d(gy,gm,gd){
+  var d=div((gy+div(gm-8,6)+100100)*1461,4)+div(153*mod(gm+9,12)+2,5)+gd-34840408;
+  d=d-div(div(gy+100100+div(gm-8,6),100)*3,4)+752;
+  return d;
+}
+function d2g(jdn){
+  var j,i,gd,gm,gy;
+  j=4*jdn+139361631;
+  j=j+div(div(4*jdn+183187720,146097)*3,4)*4-3908;
+  i=div(mod(j,1461),4)*5+308;
+  gd=div(mod(i,153),5)+1;
+  gm=mod(div(i,153),12)+1;
+  gy=div(j,1461)-100100+div(8-gm,6);
+  return {gy:gy,gm:gm,gd:gd};
+}
+function j2d(jy,jm,jd){ var r=jalCal(jy); return g2d(r.gy,3,r.march)+(jm-1)*31-div(jm,7)*(jm-7)+jd-1; }
+function d2j(jdn){
+  var gy=d2g(jdn).gy, jy=gy-621, r=jalCal(jy), jdn1f=g2d(gy,3,r.march);
+  var jd,jm,k;
+  k=jdn-jdn1f;
+  if(k>=0){
+    if(k<=185){ jm=1+div(k,31); jd=mod(k,31)+1; return {jy:jy,jm:jm,jd:jd}; }
+    else k-=186;
+  } else { jy-=1; k+=179; if(r.leap===1) k+=1; }
+  jm=7+div(k,30); jd=mod(k,30)+1;
+  return {jy:jy,jm:jm,jd:jd};
+}
+function toJalaali(gy,gm,gd){ return d2j(g2d(gy,gm,gd)); }
+function toGregorian(jy,jm,jd){ return d2g(j2d(jy,jm,jd)); }
+function isLeapJalaaliYear(jy){ return jalCal(jy).leap===0; }
+function jMonthLength(jy,jm){ if(jm<=6) return 31; if(jm<=11) return 30; return isLeapJalaaliYear(jy)?30:29; }
+
+const MONTH_NAMES=['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+const WEEKDAYS=['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
+function jsDowToIranIdx(jsDow){ return [1,2,3,4,5,6,0][jsDow]; }
+function pad2(n){ return String(n).padStart(2,'0'); }
+function faDigits(v){
+  const map={'0':'۰','1':'۱','2':'۲','3':'۳','4':'۴','5':'۵','6':'۶','7':'۷','8':'۸','9':'۹'};
+  return String(v).replace(/[0-9]/g, d=>map[d]);
+}
+function faToEn(v){
+  const map={'۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9'};
+  return String(v).replace(/[۰-۹]/g, d=>map[d]);
+}
+function editYearValue(){ return parseInt(faToEn(document.getElementById('editYear').value),10); }
+function dateKey(jy,jm,jd){ return jy+'-'+pad2(jm)+'-'+pad2(jd); }
+function getTodayJalali(){
+  const now=new Date();
+  const j=toJalaali(now.getFullYear(), now.getMonth()+1, now.getDate());
+  return j;
+}
+function jalaliDateObj(jy,jm,jd){
+  const g=toGregorian(jy,jm,jd);
+  return new Date(g.gy, g.gm-1, g.gd);
+}
+function iranWeekdayIdx(jy,jm,jd){
+  const d=jalaliDateObj(jy,jm,jd);
+  return jsDowToIranIdx(d.getDay());
+}
+
+/* ============================================================
+   STATE / DB
+   ============================================================ */
+/* ============================================================
+   ROLES (سمت‌ها)
+   ============================================================ */
+/* ============================================================
+   UNIFIED ICON SET (modern, consistent stroke-style SVG icons
+   replacing the old mismatched emoji per role/action)
+   ============================================================ */
+const ICONS = {
+  droplet:'<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',
+  wrench:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2-2 2.6-2.6z"/>',
+  palette:'<path d="M12 3a9 9 0 1 0 0 18c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2H16a5 5 0 0 0 5-5c0-3.3-4-6.4-9-6.4z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="10.5" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/>',
+  brush:'<path d="M9.5 14.5 4 20M13 3l7 7-7.5 7.5a3 3 0 0 1-4.2 0 3 3 0 0 1 0-4.2L13 3z"/>',
+  candle:'<path d="M9 8h6v11a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V8z"/><path d="M12 8V5"/><path d="M12 2c1 1 1.3 1.9.5 3-1-.4-1.3-1.7-.5-3z"/>',
+  box:'<path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M3 8v9l9 5 9-5V8"/><path d="M12 13V22"/>',
+  brick:'<rect x="3" y="6" width="7" height="5"/><rect x="14" y="6" width="7" height="5"/><rect x="7" y="13" width="7" height="5"/><rect x="17" y="13" width="4" height="5"/><rect x="3" y="13" width="2" height="5"/>',
+  frame:'<rect x="3" y="4" width="18" height="16" rx="1.5"/><circle cx="9" cy="10" r="1.8"/><path d="M21 17l-6-5-4 3.5-2-1.5-6 5"/>',
+  lamp:'<path d="M8 4h8l-2 6H10L8 4z"/><path d="M10 10h4l1.5 8h-7L10 10z"/><path d="M8.5 18h7"/>',
+  sparkles:'<path d="M12 3l1.4 4.6L18 9l-4.6 1.4L12 15l-1.4-4.6L6 9l4.6-1.4L12 3z"/><path d="M19 15l.7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7L19 15z"/>',
+  truck:'<rect x="2" y="7" width="12" height="9"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17.5" cy="18" r="1.6"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V20a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1A2 2 0 1 1 4 15.9l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H2.7a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.3 7.4a1.7 1.7 0 0 0-.3-1.9l-.1-.1A2 2 0 1 1 6.7 2.6l.1.1a1.7 1.7 0 0 0 1.9.3H8.8a1.7 1.7 0 0 0 1-1.5V1.3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V7.5a1.7 1.7 0 0 0 1.5 1h.1a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  crown:'<path d="M3 8l4 3 5-6 5 6 4-3-2 10H5L3 8z"/><path d="M5 20h14"/>',
+  user:'<circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/>',
+  pencil:'<path d="M4 20l.9-4L15.5 5.4a1.5 1.5 0 0 1 2.1 0l1 1a1.5 1.5 0 0 1 0 2.1L8 19l-4 1z"/><path d="M14 7l3 3"/>',
+  trash:'<path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/>'
+};
+function svgIcon(name, size){
+  size = size || 14;
+  const p = ICONS[name] || ICONS.user;
+  return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+}
+
+const MANAGER_ROLE = 'مدیر داخلی';
+const MANAGER_NAME = 'آقای نامی';
+const ROLES = [
+  { key:'تزریق کار', icon:'droplet' },
+  { key:'وسط کار', icon:'wrench' },
+  { key:'نقاش', icon:'palette' },
+  { key:'کمک نقاش', icon:'brush' },
+  { key:'واکس زن', icon:'candle' },
+  { key:'بسته‌بندی', icon:'box' },
+  { key:'مواد ساز', icon:'brick' },
+  { key:'نقاش پشت قالب', icon:'frame' },
+  { key:'واکس زن پشت قالب', icon:'lamp' },
+  { key:'پولیش کار', icon:'sparkles' },
+  { key:'سفارشات و ارسال', icon:'truck' },
+  { key:'سنگ زن', icon:'gear' },
+  { key:MANAGER_ROLE, icon:'crown' }
+];
+function roleIcon(role){
+  const r=ROLES.find(x=>x.key===role);
+  const name = r? r.icon : 'user';
+  const isMgr = role===MANAGER_ROLE;
+  return `<span class="role-ico${isMgr?' mgr':''}">${svgIcon(name,12)}</span>`;
+}
+function roleOptionsHtml(excludeManager, selected){
+  return ROLES.filter(r=> !excludeManager || r.key!==MANAGER_ROLE).map(r=>
+    `<option value="${escapeHtml(r.key)}" ${r.key===selected?'selected':''}>${escapeHtml(r.key)}</option>`
+  ).join('');
+}
+
+let DB = {
+  employees: [],      // {id, name, active, role, createdAt, leftAt, startDate, inactivePeriods}
+  records: {},         // empId -> dateKey -> record
+  bonus: {},            // empId -> "YYYY-MM" -> {type,amount,note}
+  holidays: {},          // dateKey -> title
+  logs: [],               // {ts, text}
+  overtimeRules: [],       // {id, empId, startDate, endDate, hours, scope, weekdays, createdAt}
+  settings: { workIn:'08:00', workOut:'18:00', thuOut:'14:00', reminderHour:17, reminderMinute:0 }
+};
+let currentSha = null;
+let ghSettings = { owner:'', repo:'', branch:'main', path:'data.json', token:'' };
+let saveTimer = null;
+let showInactive = false;
+
+const today = getTodayJalali();
+let chartYM = { jy: today.jy, jm: today.jm };
+let calYM = { jy: today.jy, jm: today.jm };
+
+function uid(){ return 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function ensureManagerSeed(){
+  if(!DB.employees.find(e=>e.name.trim()===MANAGER_NAME)){
+    DB.employees.push({ id:uid(), name:MANAGER_NAME, role:MANAGER_ROLE, active:true, createdAt:dateKey(today.jy,today.jm,today.jd), leftAt:null, startDate:null, inactivePeriods:[] });
+  }
+}
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem('attendance_db');
+    if(raw) DB = JSON.parse(raw);
+  }catch(e){}
+  DB.settings = Object.assign({workIn:'08:00',workOut:'18:00',thuOut:'14:00',reminderHour:17,reminderMinute:0}, DB.settings||{});
+  DB.overtimeRules = DB.overtimeRules||[];
+  ensureManagerSeed();
+  try{
+    const s = localStorage.getItem('attendance_gh_settings');
+    if(s) ghSettings = Object.assign(ghSettings, JSON.parse(s));
+  }catch(e){}
+}
+function saveLocal(){
+  localStorage.setItem('attendance_db', JSON.stringify(DB));
+}
+function pushLog(text){
+  DB.logs.unshift({ ts: new Date().toISOString(), text });
+  if(DB.logs.length>500) DB.logs.length=500;
+}
+function mutate(logText){
+  if(logText) pushLog(logText);
+  saveLocal();
+  renderAll();
+  scheduleSave();
+}
+
+/* ============================================================
+   GITHUB SYNC
+   ============================================================ */
+function utf8_to_b64(str){ return btoa(unescape(encodeURIComponent(str))); }
+function b64_to_utf8(str){ return decodeURIComponent(escape(atob(str))); }
+
+function setBadge(state, text){
+  const el=document.getElementById('syncBadge');
+  el.className='sync-badge '+state;
+  el.textContent=text;
+}
+
+function ghConfigured(){
+  return ghSettings.owner && ghSettings.repo && ghSettings.token;
+}
+
+async function loadFromGithub(silent){
+  if(!ghConfigured()){ setBadge('', 'گیت‌هاب تنظیم نشده'); return; }
+  setBadge('saving','در حال بارگذاری...');
+  try{
+    const url = `https://api.github.com/repos/${ghSettings.owner}/${ghSettings.repo}/contents/${encodeURIComponent(ghSettings.path)}?ref=${ghSettings.branch}&t=${Date.now()}`;
+    const res = await fetch(url, { headers:{ 'Authorization':'Bearer '+ghSettings.token, 'Accept':'application/vnd.github+json' } });
+    if(res.status===404){
+      currentSha=null;
+      setBadge('ok','فایل جدید - آماده ذخیره');
+      if(!silent) alert('فایل داده در مخزن پیدا نشد. با اولین ذخیره، ساخته می‌شود.');
+      return;
+    }
+    if(!res.ok){ throw new Error('خطا: '+res.status); }
+    const data = await res.json();
+    currentSha = data.sha;
+    const content = b64_to_utf8(data.content.replace(/\n/g,''));
+    const parsed = JSON.parse(content);
+    DB = Object.assign({employees:[],records:{},bonus:{},holidays:{},logs:[],overtimeRules:[],settings:{workIn:'08:00',workOut:'18:00',thuOut:'14:00',reminderHour:17,reminderMinute:0}}, parsed);
+    DB.settings = Object.assign({workIn:'08:00',workOut:'18:00',thuOut:'14:00',reminderHour:17,reminderMinute:0}, DB.settings||{});
+    DB.overtimeRules = DB.overtimeRules||[];
+    ensureManagerSeed();
+    saveLocal();
+    setBadge('ok','بارگذاری شد');
+    renderAll();
+  }catch(err){
+    setBadge('err','خطا در بارگذاری');
+    if(!silent) alert('اتصال به گیت‌هاب ناموفق بود: '+err.message);
+  }
+}
+
+function scheduleSave(){
+  if(!ghConfigured()) return;
+  clearTimeout(saveTimer);
+  setBadge('saving','در انتظار ذخیره...');
+  saveTimer = setTimeout(saveToGithub, 1800);
+}
+
+async function saveToGithub(){
+  if(!ghConfigured()) return;
+  setBadge('saving','در حال ذخیره...');
+  try{
+    const url = `https://api.github.com/repos/${ghSettings.owner}/${ghSettings.repo}/contents/${encodeURIComponent(ghSettings.path)}`;
+    const body = {
+      message: 'به‌روزرسانی داده‌های حضور و غیاب - '+ new Date().toISOString(),
+      content: utf8_to_b64(JSON.stringify(DB, null, 2)),
+      branch: ghSettings.branch
+    };
+    if(currentSha) body.sha = currentSha;
+    const res = await fetch(url, {
+      method:'PUT',
+      headers:{ 'Authorization':'Bearer '+ghSettings.token, 'Accept':'application/vnd.github+json', 'Content-Type':'application/json' },
+      body: JSON.stringify(body)
+    });
+    if(!res.ok){
+      if(res.status===409 || res.status===422){
+        await loadFromGithub(true);
+        setBadge('err','تغییر همزمان! دوباره تلاش می‌کنم...');
+        setTimeout(saveToGithub, 800);
+        return;
+      }
+      throw new Error(res.status);
+    }
+    const data = await res.json();
+    currentSha = data.content.sha;
+    const now=new Date();
+    setBadge('ok','ذخیره شد ساعت '+faDigits(pad2(now.getHours()))+':'+faDigits(pad2(now.getMinutes())));
+  }catch(err){
+    setBadge('err','ذخیره ناموفق بود');
+  }
+}
+
+/* ============================================================
+   CORE ATTENDANCE LOGIC
+   ============================================================ */
+function expectedHours(isThursday){
+  const s=DB.settings||{workIn:'08:00',workOut:'18:00',thuOut:'14:00'};
+  return isThursday? hoursBetween(s.workIn, s.thuOut) : hoursBetween(s.workIn, s.workOut);
+}
+
+function timeToMin(t){
+  if(!t) return null;
+  const p=t.split(':'); if(p.length<2) return null;
+  return (parseInt(p[0],10)*60)+parseInt(p[1],10);
+}
+function hoursBetween(inT,outT){
+  const a=timeToMin(inT), b=timeToMin(outT);
+  if(a==null||b==null) return 0;
+  let diff=b-a; if(diff<0) diff+=24*60;
+  return diff/60;
+}
+function fmtDiff(h){
+  if(h==null) return '';
+  const r=Math.round(h*100)/100;
+  if(Math.abs(r)<0.001) return '<span class="diff-zero">'+faDigits(0)+'</span>';
+  const sign = r>0?'+':'−';
+  return '<span class="'+(r>0?'diff-pos':'diff-neg')+'">'+sign+faDigits(Math.abs(r))+'</span>';
+}
+function hoursToHM(hAbs){
+  const totalMin=Math.round(hAbs*60);
+  return { hh: Math.floor(totalMin/60), mm: totalMin%60 };
+}
+function fmtDiffFull(h){
+  if(h==null) return '—';
+  const r=Math.round(h*100)/100;
+  if(Math.abs(r)<0.001) return faDigits(0);
+  const {hh,mm}=hoursToHM(Math.abs(r));
+  const label = r>0? 'اضافه‌کار':'کسری کار';
+  if(mm===0){
+    return faDigits(hh)+' ساعت '+label;
+  }
+  const hmText = hh>0 ? (faDigits(hh)+' ساعت و '+faDigits(mm)+' دقیقه') : (faDigits(mm)+' دقیقه');
+  return faDigits(Math.abs(r))+' ساعت معادل '+hmText+' '+label;
+}
+function fmtDiffFullHtml(h){
+  if(h==null) return '';
+  const r=Math.round(h*100)/100;
+  if(Math.abs(r)<0.001) return '<span class="diff-zero">'+faDigits(0)+'</span>';
+  return '<span class="'+(r>0?'diff-pos':'diff-neg')+'">'+fmtDiffFull(r)+'</span>';
+}
+
+function isInInactivePeriod(emp, key){
+  if(!emp || !emp.inactivePeriods) return false;
+  return emp.inactivePeriods.some(p=> key>=p.from && (p.to===null || key<=p.to));
+}
+
+/* ============================================================
+   OVERTIME RULES (اضافه‌کاری ویژه‌ی یک نیرو)
+   قانون‌هایی که از یک تاریخ مشخص (تا زمانی که کنسل/حذف نشوند)
+   چند ساعت به ساعت خروجِ پیش‌فرض یک نیروی خاص اضافه می‌کنند.
+   جمعه و تعطیل رسمی همیشه مستثنی هستند.
+   ============================================================ */
+function activeOvertimeExtra(empId, key, dIdx){
+  if(DB.holidays[key]) return 0;
+  const rules = DB.overtimeRules||[];
+  let extra=0;
+  rules.forEach(r=>{
+    if(r.empId!==empId) return;
+    if(key < r.startDate) return;
+    if(r.endDate!=null && key >= r.endDate) return;
+    if(r.scope==='weekdays'){
+      if(!r.weekdays || !r.weekdays.includes(dIdx)) return;
+    } else if(dIdx===6){
+      return; // "all days" scope never implicitly includes Friday
+    }
+    extra += Number(r.hours)||0;
+  });
+  return extra;
+}
+function addHoursToTime(t, extraH){
+  const base = timeToMin(t);
+  if(base==null) return t;
+  let total = base + Math.round(extraH*60);
+  total = ((total%1440)+1440)%1440;
+  return pad2(Math.floor(total/60))+':'+pad2(total%60);
+}
+
+function getDayInfo(empId, jy, jm, jd){
+  const key = dateKey(jy,jm,jd);
+  const emp = DB.employees.find(e=>e.id===empId);
+  const dIdx = iranWeekdayIdx(jy,jm,jd);
+  const isFriday = dIdx===6;
+  const isThursday = dIdx===5;
+  const dObj = jalaliDateObj(jy,jm,jd);
+  const now = new Date(); now.setHours(0,0,0,0);
+  const isFuture = dObj.getTime() > now.getTime();
+  const holidayTitle = DB.holidays[key];
+  const manual = (DB.records[empId] && DB.records[empId][key]) || null;
+  const inactive = isInInactivePeriod(emp, key);
+
+  const info = { key, dIdx, isFriday, isThursday, isFuture, holidayTitle, manual: !inactive && !!manual, weekdayName: WEEKDAYS[dIdx] };
+
+  if(inactive){
+    info.type='removed'; info.in=null; info.out=null; info.overtime=0; info.diff=0;
+    info.note='نیرو در این تاریخ اخراج بوده است';
+    return info;
+  }
+
+  if(emp && emp.startDate && key < emp.startDate){
+    info.type='not-started'; info.in=null; info.out=null; info.overtime=0; info.diff=0;
+    info.note='قبل از تاریخ استخدام این نیرو';
+    return info;
+  }
+
+  if(manual){
+    info.note = manual.note||'';
+    if(isFriday){
+      info.overtime = manual.overtime||0;
+      info.diff = manual.overtime||0;
+      info.type='friday-manual';
+    } else if(manual.leave){
+      info.leave = true;
+      info.diff = 0;
+      info.type='leave';
+    } else {
+      info.in = manual.in || null;
+      info.out = manual.out || null;
+      const worked = hoursBetween(info.in, info.out);
+      info.diff = holidayTitle ? 0 : (worked - expectedHours(isThursday));
+      info.type = holidayTitle? 'holiday-manual':'manual';
+    }
+    return info;
+  }
+
+  if(holidayTitle){
+    info.type='holiday'; info.label=holidayTitle; info.diff=0; return info;
+  }
+  if(isFuture){
+    info.type='future'; info.diff=null; return info;
+  }
+  if(isFriday){
+    const fridayExtra = activeOvertimeExtra(empId, key, dIdx);
+    info.type='friday-default'; info.overtime=fridayExtra; info.diff=fridayExtra; return info;
+  }
+  const s=DB.settings||{workIn:'08:00',workOut:'18:00',thuOut:'14:00'};
+  info.type='full';
+  info.in = s.workIn;
+  const baseOut = isThursday? s.thuOut : s.workOut;
+  const extra = activeOvertimeExtra(empId, key, dIdx);
+  if(extra>0){
+    info.out = addHoursToTime(baseOut, extra);
+    info.diff = extra;
+    info.overtimeExtra = extra;
+  } else {
+    info.out = baseOut;
+    info.diff = 0;
+  }
+  return info;
+}
+
+function monthSummary(empId, jy, jm){
+  const len = jMonthLength(jy,jm);
+  let sum=0;
+  const rows=[];
+  for(let d=1; d<=len; d++){
+    const info=getDayInfo(empId,jy,jm,d);
+    if(info.diff!=null) sum+=info.diff;
+    rows.push(info);
+  }
+  return { rows, sum };
+}
+
+/* ============================================================
+   RENDER: header / search / employee list
+   ============================================================ */
+function renderTodayLine(){
+  const d=getTodayJalali();
+  const w=WEEKDAYS[iranWeekdayIdx(d.jy,d.jm,d.jd)];
+  const txt = w+' '+faDigits(d.jd)+' '+MONTH_NAMES[d.jm-1]+' '+faDigits(d.jy);
+  document.getElementById('todayLine').textContent = txt;
+  document.getElementById('todayPill').textContent = txt;
+}
+
+function activeEmployees(){ return DB.employees.filter(e=>e.active!==false); }
+
+function renderEmpCount(){
+  document.getElementById('empCountBadge').textContent = faDigits(activeEmployees().length)+' نیرو';
+}
+
+function employeeScore(empId){
+  const {rows}=monthSummary(empId, today.jy, today.jm);
+  let leaveCount=0, deficit=0;
+  rows.forEach(r=>{
+    if(r.leave) leaveCount++;
+    if(r.diff!=null && r.diff<0) deficit += -r.diff;
+  });
+  return { leaveCount, deficit: Math.round(deficit*100)/100 };
+}
+
+function sortedEmployeeList(list){
+  return list.slice().sort((a,b)=>{
+    const sa=employeeScore(a.id), sb=employeeScore(b.id);
+    if(sa.leaveCount!==sb.leaveCount) return sa.leaveCount-sb.leaveCount;
+    if(sa.deficit!==sb.deficit) return sa.deficit-sb.deficit;
+    return 0;
+  });
+}
+
+function renderEmpList(){
+  const wrap=document.getElementById('empList');
+  const base = showInactive ? DB.employees : activeEmployees();
+  const list = sortedEmployeeList(base);
+  if(list.length===0){ wrap.innerHTML='<div class="empty">هنوز نیرویی اضافه نشده است.</div>'; }
+  else{
+    wrap.innerHTML = list.map(e=>{
+      const inactive = e.active===false;
+      const isNamedManager = e.name && e.name.trim()===MANAGER_NAME;
+      const roleHtml = e.role? `<span class="role-tag">${roleIcon(e.role)} ${escapeHtml(e.role)}</span>` : '';
+      return `<div class="emp-row ${inactive?'inactive-row':''}" data-id="${e.id}">
+        <span class="nm-wrap" onclick="openReport('${e.id}')">
+          <span class="nm">${escapeHtml(e.name)} ${isNamedManager?`<span class="name-crown" title="مدیر">${svgIcon('crown',14)}</span>`:''} ${inactive?'<span style=\"color:var(--muted);font-size:11px\">(اخراج شده)</span>':''}</span>
+          ${roleHtml}
+        </span>
+        <span class="icons">
+          <button class="icon-btn" onclick="event.stopPropagation();openEmpEditModal('${e.id}')" title="ویرایش">${svgIcon('pencil',15)}</button>
+          ${!inactive? `<button class="icon-btn danger" onclick="event.stopPropagation();openEmpActionModal('${e.id}')" title="حذف">${svgIcon('trash',15)}</button>` : ''}
+        </span>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('toggleInactive').textContent = showInactive? 'مخفی‌کردن نیروهای اخراجی' : 'نمایش نیروهای اخراجی';
+  renderEmpCount();
+}
+
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+document.getElementById('toggleInactive').onclick=()=>{ showInactive=!showInactive; renderEmpList(); };
+
+function findEmployeeByName(name, activeOnly){
+  const norm = name.trim().toLowerCase();
+  return DB.employees.find(e => e.name.trim().toLowerCase()===norm && (!activeOnly || e.active!==false));
+}
+
+/* ---- add employee modal ---- */
+function openAddEmpModal(){
+  document.getElementById('addEmpName').value='';
+  document.getElementById('addEmpRole').innerHTML = roleOptionsHtml(true, null);
+  document.getElementById('addEmpIsNew').checked=false;
+  closeAllOverlays();
+  document.getElementById('addEmpOverlay').classList.add('show');
+}
+document.getElementById('addEmpBtn').onclick=openAddEmpModal;
+
+document.getElementById('saveAddEmpBtn').onclick=()=>{
+  const name=document.getElementById('addEmpName').value.trim();
+  const role=document.getElementById('addEmpRole').value;
+  const isNew=document.getElementById('addEmpIsNew').checked;
+  if(!name){ alert('نام نیرو را وارد کنید.'); return; }
+
+  const activeMatch = findEmployeeByName(name, true);
+  if(activeMatch){
+    alert('نیرویی با نام «'+activeMatch.name+'» از قبل وجود دارد. امکان افزودن نام تکراری نیست.');
+    return;
+  }
+
+  const todayKey = dateKey(today.jy,today.jm,today.jd);
+  const inactiveMatch = findEmployeeByName(name, false); // any match not caught above means fired/inactive
+  if(inactiveMatch){
+    if(!confirm('نیرویی با نام «'+inactiveMatch.name+'» قبلاً اخراج شده بود. آیا می‌خواهید همان نیرو را بازگردانید؟')) return;
+    if(!inactiveMatch.inactivePeriods) inactiveMatch.inactivePeriods=[];
+    const openPeriod = inactiveMatch.inactivePeriods.find(p=>p.to===null);
+    if(openPeriod) openPeriod.to = todayKey;
+    inactiveMatch.active = true;
+    inactiveMatch.leftAt = null;
+    inactiveMatch.role = role;
+    if(isNew) inactiveMatch.startDate = todayKey;
+    closeOverlay('addEmpOverlay');
+    mutate('بازگرداندن نیرو: '+inactiveMatch.name);
+    return;
+  }
+
+  const emp={ id:uid(), name, role, active:true, createdAt: todayKey, leftAt:null, startDate: isNew? todayKey : null, inactivePeriods:[] };
+  DB.employees.push(emp);
+  closeOverlay('addEmpOverlay');
+  mutate('افزودن نیرو: '+name+(isNew? ' (استخدام جدید از امروز)':''));
+};
+
+/* ---- edit employee (name + role) modal ---- */
+let empEditCtx={ empId:null };
+function openEmpEditModal(id){
+  const emp=DB.employees.find(e=>e.id===id); if(!emp) return;
+  empEditCtx.empId=id;
+  document.getElementById('empEditName').value=emp.name;
+  const isManager = emp.role===MANAGER_ROLE;
+  document.getElementById('empEditRole').innerHTML = roleOptionsHtml(!isManager, emp.role);
+  document.getElementById('empEditRole').disabled = isManager;
+  closeAllOverlays();
+  document.getElementById('empEditOverlay').classList.add('show');
+}
+document.getElementById('saveEmpEditBtn').onclick=()=>{
+  const id=empEditCtx.empId;
+  const emp=DB.employees.find(e=>e.id===id); if(!emp) return;
+  const newName=document.getElementById('empEditName').value.trim();
+  const newRole=document.getElementById('empEditRole').disabled? emp.role : document.getElementById('empEditRole').value;
+  if(!newName){ alert('نام نیرو نمی‌تواند خالی باشد.'); return; }
+  const dup = DB.employees.find(e=> e.id!==id && e.active!==false && e.name.trim().toLowerCase()===newName.toLowerCase());
+  if(dup){ alert('نیرویی با نام «'+dup.name+'» از قبل وجود دارد.'); return; }
+  const old=emp.name, oldRole=emp.role;
+  emp.name=newName;
+  emp.role=newRole;
+  closeOverlay('empEditOverlay');
+  let logText='ویرایش نیرو: '+old;
+  if(old!==newName) logText+=' → '+newName;
+  if(oldRole!==newRole) logText+=' (سمت: '+(oldRole||'—')+' → '+(newRole||'—')+')';
+  mutate(logText);
+};
+
+/* ---- remove employee: fire vs full delete ---- */
+let empActionCtx={ empId:null };
+function openEmpActionModal(id){
+  const emp=DB.employees.find(e=>e.id===id); if(!emp) return;
+  empActionCtx.empId=id;
+  document.getElementById('empActionTitle').textContent = 'حذف نیرو — '+emp.name;
+  closeAllOverlays();
+  document.getElementById('empActionOverlay').classList.add('show');
+}
+document.getElementById('empActionFireBtn').onclick=()=>{
+  const emp=DB.employees.find(e=>e.id===empActionCtx.empId); if(!emp) return;
+  if(!confirm('نیرو "'+emp.name+'" اخراج شود؟ گزارش‌های او حفظ می‌ماند.')) return;
+  const todayKey=dateKey(today.jy,today.jm,today.jd);
+  emp.active=false;
+  emp.leftAt=todayKey;
+  if(!emp.inactivePeriods) emp.inactivePeriods=[];
+  emp.inactivePeriods.push({ from: todayKey, to: null });
+  closeOverlay('empActionOverlay');
+  mutate('اخراج نیرو: '+emp.name);
+};
+document.getElementById('empActionWipeBtn').onclick=()=>{
+  const emp=DB.employees.find(e=>e.id===empActionCtx.empId); if(!emp) return;
+  if(!confirm('نیرو "'+emp.name+'" و تمام گزارش‌های او برای همیشه حذف شوند؟ این عملیات قابل بازگشت نیست.')) return;
+  const name=emp.name;
+  DB.employees = DB.employees.filter(e=>e.id!==emp.id);
+  delete DB.records[emp.id];
+  delete DB.bonus[emp.id];
+  closeOverlay('empActionOverlay');
+  mutate('حذف کامل نیرو: '+name);
+};
+
+/* search */
+const searchInput=document.getElementById('searchInput');
+const searchResults=document.getElementById('searchResults');
+searchInput.addEventListener('input', ()=>{
+  const q=searchInput.value.trim();
+  if(!q){ searchResults.style.display='none'; return; }
+  const list=activeEmployees().filter(e=>e.name.indexOf(q)>-1);
+  if(list.length===0){ searchResults.innerHTML='<div class="search-item"><span class="st">موردی یافت نشد</span></div>'; searchResults.style.display='block'; return; }
+  searchResults.innerHTML=list.map(e=>{
+    const info=getDayInfo(e.id, today.jy, today.jm, today.jd);
+    let st='';
+    if(info.type==='holiday') st='تعطیل رسمی';
+    else if(info.isFriday) st='جمعه';
+    else if(info.leave) st='مرخصی';
+    else if(info.manual) st='ورود '+ (info.in||'-') +' / خروج '+(info.out||'-');
+    else st='هنوز ثبت نشده (پیش‌فرض کامل)';
+    return `<div class="search-item" onclick="openEditFromSearch('${e.id}')"><span class="nm">${escapeHtml(e.name)}</span><span class="st">${st}</span></div>`;
+  }).join('');
+  searchResults.style.display='block';
+});
+document.addEventListener('click', (ev)=>{
+  if(!ev.target.closest('.search-box')) searchResults.style.display='none';
+});
+function openEditFromSearch(empId){
+  searchResults.style.display='none';
+  searchInput.value='';
+  openEditModal(empId, today.jy, today.jm, today.jd);
+}
+
+/* ============================================================
+   EDIT MODAL
+   ============================================================ */
+let editCtx={ empId:null, fromReport:false };
+
+function fillMonthDaySelects(jy, sel_m, sel_d){
+  const mSel=document.getElementById('editMonth');
+  mSel.innerHTML=MONTH_NAMES.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
+  mSel.value=sel_m;
+  const len=jMonthLength(editYearValue()||jy, sel_m);
+  const dSel=document.getElementById('editDay');
+  dSel.innerHTML=Array.from({length:len},(_,i)=>i+1).map(d=>`<option value="${d}">${faDigits(d)}</option>`).join('');
+  dSel.value=sel_d;
+}
+
+function closeAllOverlays(){
+  document.querySelectorAll('.overlay.show').forEach(o=>o.classList.remove('show'));
+}
+function openEditModal(empId, jy, jm, jd){
+  editCtx.fromReport = document.getElementById('reportOverlay').classList.contains('show');
+  closeAllOverlays();
+  editCtx.empId=empId;
+  const emp=DB.employees.find(e=>e.id===empId);
+  document.getElementById('editEmpName').value = emp? emp.name : '';
+  document.getElementById('editYear').value = faDigits(jy);
+  fillMonthDaySelects(jy, jm, jd);
+  refreshEditFieldsForDate();
+  loadDayIntoForm();
+  document.getElementById('editOverlay').classList.add('show');
+}
+document.getElementById('editYear').addEventListener('change', ()=>{ document.getElementById('editYear').value=faDigits(editYearValue()||''); fillMonthDaySelects(editYearValue(), parseInt(document.getElementById('editMonth').value,10), 1); refreshEditFieldsForDate(); loadDayIntoForm(); });
+document.getElementById('editMonth').addEventListener('change', ()=>{ fillMonthDaySelects(editYearValue(), parseInt(document.getElementById('editMonth').value,10), 1); refreshEditFieldsForDate(); loadDayIntoForm(); });
+document.getElementById('editDay').addEventListener('change', ()=>{ refreshEditFieldsForDate(); loadDayIntoForm(); });
+document.getElementById('editLeave').addEventListener('change', refreshLeaveVisibility);
+
+function curEditDate(){
+  return { jy: editYearValue(), jm: parseInt(document.getElementById('editMonth').value,10), jd: parseInt(document.getElementById('editDay').value,10) };
+}
+
+function refreshEditFieldsForDate(){
+  const {jy,jm,jd}=curEditDate();
+  const key=dateKey(jy,jm,jd);
+  const dIdx=iranWeekdayIdx(jy,jm,jd);
+  const isFriday=dIdx===6;
+  const holiday=DB.holidays[key];
+  const emp=DB.employees.find(e=>e.id===editCtx.empId);
+  const inactive = isInInactivePeriod(emp, key);
+  const notStarted = emp && emp.startDate && key < emp.startDate;
+
+  document.getElementById('saveDayBtn').disabled = inactive || notStarted;
+  document.getElementById('resetDayBtn').disabled = inactive || notStarted;
+
+  if(inactive){
+    document.getElementById('fridayFields').style.display='none';
+    document.getElementById('normalFields').style.display='none';
+    document.getElementById('leaveWrap').style.display='none';
+    document.getElementById('dayTypeNote').textContent = 'این نیرو در این تاریخ اخراج بوده است؛ امکان ثبت ساعت کاری برای این روز وجود ندارد.';
+    return;
+  }
+  if(notStarted){
+    document.getElementById('fridayFields').style.display='none';
+    document.getElementById('normalFields').style.display='none';
+    document.getElementById('leaveWrap').style.display='none';
+    document.getElementById('dayTypeNote').textContent = 'این نیرو در این تاریخ هنوز استخدام نشده بوده است؛ امکان ثبت ساعت کاری برای این روز وجود ندارد.';
+    return;
+  }
+  document.getElementById('fridayFields').style.display = isFriday? 'block':'none';
+  document.getElementById('normalFields').style.display = isFriday? 'none':'flex';
+  document.getElementById('leaveWrap').style.display = isFriday? 'none':'flex';
+  const ws=DB.settings||{workIn:'08:00',workOut:'18:00',thuOut:'14:00'};
+  document.getElementById('editIn').placeholder = ws.workIn;
+  document.getElementById('editOut').placeholder = dIdx===5? ws.thuOut : ws.workOut;
+  document.getElementById('dayTypeNote').textContent = holiday? ('این روز تعطیل رسمی است: '+holiday) : (isFriday? 'این روز جمعه است، به‌جای ساعت ورود/خروج، اضافه‌کاری ثبت کنید.': WEEKDAYS[dIdx]+(dIdx===5?(' (نیمه‌کار تا ساعت '+faDigits(ws.thuOut)+')'):''));
+}
+function refreshLeaveVisibility(){
+  const leave=document.getElementById('editLeave').checked;
+  document.getElementById('normalFields').style.display = leave? 'none':'flex';
+}
+
+function loadDayIntoForm(){
+  const {jy,jm,jd}=curEditDate();
+  const info=getDayInfo(editCtx.empId, jy, jm, jd);
+  document.getElementById('editNote').value = info.note||'';
+  if(info.isFriday){
+    document.getElementById('editOvertime').value = info.overtime||0;
+  } else {
+    document.getElementById('editLeave').checked = !!info.leave;
+    document.getElementById('editIn').value = info.leave? '' : (info.manual? (info.in||''): '');
+    document.getElementById('editOut').value = info.leave? '' : (info.manual? (info.out||''): '');
+    refreshLeaveVisibility();
+  }
+}
+
+document.getElementById('saveDayBtn').onclick=()=>{
+  const {jy,jm,jd}=curEditDate();
+  const key=dateKey(jy,jm,jd);
+  const empId=editCtx.empId;
+  const emp=DB.employees.find(e=>e.id===empId);
+  if(isInInactivePeriod(emp, key)){ alert('این نیرو در این تاریخ اخراج بوده است؛ امکان ثبت وجود ندارد.'); return; }
+  if(emp && emp.startDate && key < emp.startDate){ alert('این نیرو در این تاریخ هنوز استخدام نشده بوده است؛ امکان ثبت وجود ندارد.'); return; }
+  const dIdx=iranWeekdayIdx(jy,jm,jd);
+  const isFriday=dIdx===6;
+  const isThursday=dIdx===5;
+  if(!DB.records[empId]) DB.records[empId]={};
+  const note=document.getElementById('editNote').value.trim();
+
+  if(isFriday){
+    const ot=parseFloat(document.getElementById('editOvertime').value)||0;
+    DB.records[empId][key]={ overtime: ot, note };
+  } else {
+    const leave=document.getElementById('editLeave').checked;
+    if(leave){
+      DB.records[empId][key]={ leave:true, note };
+    } else {
+      let inT=document.getElementById('editIn').value.trim();
+      let outT=document.getElementById('editOut').value.trim();
+      const existing = DB.records[empId][key];
+      const ws=DB.settings||{workIn:'08:00',workOut:'18:00',thuOut:'14:00'};
+      if(inT && !outT){ outT = existing && existing.out ? existing.out : (isThursday?ws.thuOut:ws.workOut); }
+      if(outT && !inT){ inT = existing && existing.in ? existing.in : ws.workIn; }
+      if(!inT && !outT){ inT=ws.workIn; outT= isThursday?ws.thuOut:ws.workOut; }
+      DB.records[empId][key]={ in:inT, out:outT, note };
+    }
+  }
+  mutate('ثبت/ویرایش تردد '+(emp?emp.name:'')+' - '+faDigits(jd)+' '+MONTH_NAMES[jm-1]+' '+faDigits(jy));
+  closeEditOverlay();
+};
+
+document.getElementById('resetDayBtn').onclick=()=>{
+  const {jy,jm,jd}=curEditDate();
+  const key=dateKey(jy,jm,jd);
+  const empId=editCtx.empId;
+  if(DB.records[empId] && DB.records[empId][key]){
+    delete DB.records[empId][key];
+    mutate('حذف ثبت دستی برای '+faDigits(jd)+' '+MONTH_NAMES[jm-1]);
+  }
+  closeEditOverlay();
+};
+
+function closeOverlay(id){ document.getElementById(id).classList.remove('show'); }
+function closeEditOverlay(){
+  closeOverlay('editOverlay');
+  if(editCtx.fromReport){
+    editCtx.fromReport=false;
+    renderReport();
+    document.getElementById('reportOverlay').classList.add('show');
+  }
+}
+document.querySelectorAll('[data-close]').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    const id=el.getAttribute('data-close');
+    if(id==='editOverlay') closeEditOverlay(); else closeOverlay(id);
+  });
+});
+document.querySelectorAll('.overlay').forEach(ov=>{
+  ov.addEventListener('click', (ev)=>{
+    if(ev.target===ov){
+      if(ov.id==='editOverlay') closeEditOverlay(); else ov.classList.remove('show');
+    }
+  });
+});
+
+/* ============================================================
+   MONTHLY REPORT MODAL
+   ============================================================ */
+let reportCtx = { empId:null, jy: today.jy, jm: today.jm };
+
+function openReport(empId){
+  closeAllOverlays();
+  reportCtx.empId=empId; reportCtx.jy=today.jy; reportCtx.jm=today.jm;
+  renderReport();
+  document.getElementById('reportOverlay').classList.add('show');
+}
+function monthSwitchHtml(prevFn, nextFn, label){
+  return `<button onclick="${prevFn}">‹</button><span class="lbl">${label}</span><button onclick="${nextFn}">›</button>`;
+}
+function shiftMonth(jy,jm,delta){
+  jm+=delta;
+  if(jm>12){ jm=1; jy++; } if(jm<1){ jm=12; jy--; }
+  return {jy,jm};
+}
+
+function renderReport(){
+  const emp=DB.employees.find(e=>e.id===reportCtx.empId);
+  document.getElementById('reportTitle').textContent = 'گزارش ماهانه — '+(emp?emp.name:'');
+  document.getElementById('reportMonthSwitch').innerHTML = monthSwitchHtml('repPrev()','repNext()', MONTH_NAMES[reportCtx.jm-1]+' '+faDigits(reportCtx.jy));
+
+  const {rows,sum}=monthSummary(reportCtx.empId, reportCtx.jy, reportCtx.jm);
+  const body=document.getElementById('reportBody');
+  body.innerHTML = rows.map((info,i)=>{
+    const d=i+1;
+    let cls='';
+    if(info.type==='future') cls='future';
+    else if(info.holidayTitle) cls='holiday';
+    else if(info.isFriday) cls='friday';
+    else if(info.leave) cls='leave';
+    let inCell='—', outCell='—', noteCell=info.note||'';
+    if(info.type==='future'){ inCell='۰'; outCell='۰'; }
+    else if(info.holidayTitle){ noteCell = info.label || info.note || ''; inCell='—'; outCell='—'; }
+    else if(info.isFriday){ inCell='—'; outCell='—'; }
+    else if(info.leave){ noteCell = 'مرخصی'+(info.note? (' - '+info.note):''); }
+    else { inCell = info.in? info.in : '۰'; outCell = info.out? info.out : '۰'; }
+    return `<tr class="${cls}">
+      <td>${faDigits(d)}</td>
+      <td>${info.weekdayName}</td>
+      <td>${inCell}</td>
+      <td>${outCell}</td>
+      <td style="text-align:right">${escapeHtml(noteCell)}</td>
+      <td>${info.type==='future'? '—' : fmtDiff(info.diff)}</td>
+      <td><button class="mini-edit" onclick="openEditModal('${reportCtx.empId}',${reportCtx.jy},${reportCtx.jm},${d})">${svgIcon('pencil',14)}</button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('reportSum').innerHTML = fmtDiffFullHtml(sum);
+
+  renderBonusBox();
+}
+function repPrev(){ const r=shiftMonth(reportCtx.jy,reportCtx.jm,-1); reportCtx.jy=r.jy; reportCtx.jm=r.jm; renderReport(); }
+function repNext(){ const r=shiftMonth(reportCtx.jy,reportCtx.jm,1); reportCtx.jy=r.jy; reportCtx.jm=r.jm; renderReport(); }
+
+function bonusKey(){ return reportCtx.jy+'-'+pad2(reportCtx.jm); }
+function renderBonusBox(){
+  const box=document.getElementById('bpBox');
+  const empId=reportCtx.empId;
+  if(!DB.bonus[empId]) DB.bonus[empId]={};
+  const rec=DB.bonus[empId][bonusKey()];
+  if(rec){
+    box.innerHTML = `<span class="bp-tag ${rec.type}">${rec.type==='bonus'?'پاداش':'جریمه'}: ${faDigits(rec.amount.toLocaleString('en-US'))} تومان ${rec.note? ('— '+escapeHtml(rec.note)):''}</span>
+      <button class="btn danger" style="padding:6px 12px;font-size:12px" onclick="removeBonus()">حذف</button>`;
+  } else {
+    box.innerHTML = `<span style="color:var(--muted)">پاداش یا جریمه‌ای برای این ماه ثبت نشده</span>
+      <button class="btn secondary" style="padding:6px 12px;font-size:12px" onclick="addBonusPrompt()">افزودن پاداش/جریمه</button>`;
+  }
+}
+function addBonusPrompt(){
+  const type = confirm('برای ثبت "پاداش" روی OK و برای "جریمه" روی Cancel بزنید.') ? 'bonus':'penalty';
+  const amountStr = prompt('مبلغ (تومان):','0');
+  if(amountStr===null) return;
+  const amount = parseFloat(amountStr.replace(/,/g,''))||0;
+  const note = prompt('یادداشت (اختیاری):','') || '';
+  const empId=reportCtx.empId;
+  if(!DB.bonus[empId]) DB.bonus[empId]={};
+  DB.bonus[empId][bonusKey()] = { type, amount, note };
+  const emp=DB.employees.find(e=>e.id===empId);
+  mutate('ثبت '+(type==='bonus'?'پاداش':'جریمه')+' برای '+(emp?emp.name:'')+' در '+MONTH_NAMES[reportCtx.jm-1]);
+  renderBonusBox();
+}
+function removeBonus(){
+  const empId=reportCtx.empId;
+  if(DB.bonus[empId]) delete DB.bonus[empId][bonusKey()];
+  const emp=DB.employees.find(e=>e.id===empId);
+  mutate('حذف پاداش/جریمه برای '+(emp?emp.name:'')+' در '+MONTH_NAMES[reportCtx.jm-1]);
+  renderBonusBox();
+}
+
+function renderMainLog(){
+  const wrap=document.getElementById('mainLog');
+  if(!wrap) return;
+  const list = DB.logs.filter(l=>{
+    const dt=new Date(l.ts);
+    const j=toJalaali(dt.getFullYear(),dt.getMonth()+1,dt.getDate());
+    return j.jy===today.jy && j.jm===today.jm;
+  }).slice(0,60);
+  if(list.length===0){ wrap.innerHTML='<div class="empty">تغییری در این ماه ثبت نشده</div>'; return; }
+  wrap.innerHTML = list.map(l=>{
+    const dt=new Date(l.ts);
+    const j=toJalaali(dt.getFullYear(),dt.getMonth()+1,dt.getDate());
+    const stamp = faDigits(j.jd)+' '+MONTH_NAMES[j.jm-1]+' - '+faDigits(pad2(dt.getHours()))+':'+faDigits(pad2(dt.getMinutes()));
+    return `<div class="log-item"><b>${stamp}</b><br>${escapeHtml(l.text)}</div>`;
+  }).join('');
+}
+
+/* ============================================================
+   CALENDAR WIDGET
+   ============================================================ */
+const WEEKDAY_SHORT=['ش','ی','د','س','چ','پ','ج'];
+function renderCalendar(){
+  document.getElementById('calMonthSwitch').innerHTML = monthSwitchHtml('calPrev()','calNext()', MONTH_NAMES[calYM.jm-1]+' '+faDigits(calYM.jy));
+  document.getElementById('calWeekdays').innerHTML = WEEKDAY_SHORT.map((w,i)=>`<span title="${WEEKDAYS[i]}">${w}</span>`).join('');
+  const len=jMonthLength(calYM.jy, calYM.jm);
+  const grid=document.getElementById('calGrid');
+  let html='';
+  const firstDIdx = iranWeekdayIdx(calYM.jy,calYM.jm,1);
+  for(let i=0;i<firstDIdx;i++){ html+='<div class="cal-day empty-slot"></div>'; }
+  for(let d=1; d<=len; d++){
+    const dIdx=iranWeekdayIdx(calYM.jy,calYM.jm,d);
+    const key=dateKey(calYM.jy,calYM.jm,d);
+    const holiday=DB.holidays[key];
+    const hasManual = activeEmployees().concat(DB.employees.filter(e=>e.active===false)).some(e=> DB.records[e.id] && DB.records[e.id][key]);
+    const dObj=jalaliDateObj(calYM.jy,calYM.jm,d);
+    const now=new Date(); now.setHours(0,0,0,0);
+    const future = dObj.getTime()>now.getTime();
+    let cls='cal-day';
+    if(dIdx===6) cls+=' friday';
+    if(holiday) cls+=' holiday';
+    if(hasManual) cls+=' manual';
+    if(future) cls+=' future';
+    html+=`<div class="${cls}" title="${WEEKDAYS[dIdx]}" onclick="openCalDay(${d})">${faDigits(d)}</div>`;
+  }
+  grid.innerHTML=html;
+}
+function calPrev(){ const r=shiftMonth(calYM.jy,calYM.jm,-1); calYM=r; renderCalendar(); }
+function calNext(){ const r=shiftMonth(calYM.jy,calYM.jm,1); calYM=r; renderCalendar(); }
+document.getElementById('calTodayBtn').onclick=()=>{ calYM={jy:today.jy, jm:today.jm}; renderCalendar(); };
+
+/* swipe (viewPager-style) month navigation on the calendar grid */
+(function(){
+  const grid=document.getElementById('calGrid');
+  let startX=0, startY=0, tracking=false;
+  grid.addEventListener('touchstart', (e)=>{
+    if(e.touches.length!==1) return;
+    startX=e.touches[0].clientX; startY=e.touches[0].clientY; tracking=true;
+  }, { passive:true });
+  grid.addEventListener('touchend', (e)=>{
+    if(!tracking) return;
+    tracking=false;
+    const dx=e.changedTouches[0].clientX-startX;
+    const dy=e.changedTouches[0].clientY-startY;
+    const THRESHOLD=40;
+    if(Math.abs(dx)>THRESHOLD && Math.abs(dx)>Math.abs(dy)*1.5){
+      if(dx<0) calNext(); else calPrev();
+    }
+  }, { passive:true });
+})();
+
+function openCalDay(d){
+  closeAllOverlays();
+  const key=dateKey(calYM.jy,calYM.jm,d);
+  const dIdx=iranWeekdayIdx(calYM.jy,calYM.jm,d);
+  document.getElementById('calDayTitle').textContent = WEEKDAYS[dIdx]+' '+faDigits(d)+' '+MONTH_NAMES[calYM.jm-1]+' '+faDigits(calYM.jy);
+  const holiday=DB.holidays[key];
+  let html='';
+  if(holiday) html += `<div style="margin-bottom:10px;color:var(--bad);font-weight:700">تعطیل رسمی: ${escapeHtml(holiday)}</div>`;
+  const allEmps = DB.employees;
+  const entries=[];
+  allEmps.forEach(e=>{
+    const rec = DB.records[e.id] && DB.records[e.id][key];
+    if(rec){
+      let desc;
+      if(rec.leave) desc='مرخصی'+(rec.note? (' — '+rec.note):'');
+      else if(rec.overtime!=null) desc='اضافه‌کاری: '+faDigits(rec.overtime)+' ساعت'+(rec.note? (' — '+rec.note):'');
+      else desc='ورود '+(rec.in||'—')+' / خروج '+(rec.out||'—')+(rec.note? (' — '+rec.note):'');
+      entries.push('<b>'+escapeHtml(e.name)+'</b>: '+desc);
+    }
+  });
+  if(entries.length===0 && !holiday) html += '<div class="empty">موردی برای نمایش نیست (همه طبق پیش‌فرض حاضر بوده‌اند)</div>';
+  else html += entries.map(e=>`<div style="margin-bottom:8px">${e}</div>`).join('');
+  document.getElementById('calDayBody').innerHTML=html;
+  document.getElementById('calDayOverlay').classList.add('show');
+}
+
+/* ============================================================
+   CHART
+   ============================================================ */
+let rankChart=null;
+let chartSortDir='desc';
+function renderChartSection(){
+  document.getElementById('chartMonthSwitch').innerHTML = monthSwitchHtml('chartPrev()','chartNext()', MONTH_NAMES[chartYM.jm-1]+' '+faDigits(chartYM.jy));
+  const emps = activeEmployees();
+  let data = emps.map(e=>{
+    const {sum} = monthSummary(e.id, chartYM.jy, chartYM.jm);
+    return { name:e.name, sum };
+  });
+  data.sort((a,b)=> chartSortDir==='desc'? b.sum-a.sum : a.sum-b.sum);
+  const ctx=document.getElementById('rankChart').getContext('2d');
+  if(rankChart) rankChart.destroy();
+  rankChart = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: data.map(d=>d.name),
+      datasets:[{ label:'انحراف کارکرد (ساعت)', data:data.map(d=>Math.round(d.sum*100)/100),
+        backgroundColor: data.map(d=> d.sum>=0? 'rgba(45,212,191,.65)':'rgba(248,113,113,.65)'),
+        borderRadius:6 }]
+    },
+    options:{
+      indexAxis:'y',
+      plugins:{ legend:{display:false} },
+      scales:{ x:{ grid:{color:'rgba(255,255,255,.06)'}, ticks:{color:'#8b93a7'} }, y:{ grid:{display:false}, ticks:{color:'#e9ebf1'} } }
+    }
+  });
+}
+function chartPrev(){ const r=shiftMonth(chartYM.jy,chartYM.jm,-1); chartYM=r; renderChartSection(); }
+function chartNext(){ const r=shiftMonth(chartYM.jy,chartYM.jm,1); chartYM=r; renderChartSection(); }
+document.getElementById('chartSortDesc').onclick=()=>{ chartSortDir='desc'; renderChartSection(); };
+document.getElementById('chartSortAsc').onclick=()=>{ chartSortDir='asc'; renderChartSection(); };
+
+/* ============================================================
+   EXCEL EXPORT
+   ============================================================ */
+function sanitizeSheetName(name){
+  return name.replace(/[\\\/\?\*\[\]:]/g,' ').slice(0,31) || 'Sheet';
+}
+function employeeExportLabel(emp){
+  if(!emp) return '';
+  let label=emp.name;
+  if(emp.role) label += ' — '+emp.role;
+  if(emp.active===false) label += ' (اخراج شده)';
+  return label;
+}
+function buildEmployeeSheetData(empId, jy, jm){
+  const emp=DB.employees.find(e=>e.id===empId);
+  const {rows,sum} = monthSummary(empId, jy, jm);
+  const header=['روز','روز هفته','ورود','خروج','توضیحات','کسری/اضافه‌کار (ساعت)'];
+  const aoa=[header];
+  const rowMeta=[];
+  rows.forEach((info,i)=>{
+    const d=i+1;
+    let inCell='', outCell='', note=info.note||'';
+    if(info.type==='future'){ inCell='۰'; outCell='۰'; }
+    else if(info.holidayTitle){ note = info.label||note; }
+    else if(info.isFriday){ inCell='—'; outCell='—'; }
+    else if(info.leave){ note = 'مرخصی'+(info.note?(' - '+info.note):''); }
+    else { inCell = faTime(info.in)||'۰'; outCell = faTime(info.out)||'۰'; }
+    const diffTxt = info.type==='future' ? '' : (info.diff==null?'' : (info.diff===0? faDigits(0) : (info.diff>0?'+':'−')+faDigits(Math.abs(Math.round(info.diff*100)/100))));
+    aoa.push([ faDigits(d), info.weekdayName, inCell, outCell, note, diffTxt ]);
+    let kind='normal';
+    if(info.isFriday) kind='friday';
+    else if(info.leave) kind='leave';
+    else if(info.holidayTitle) kind='holiday';
+    rowMeta.push(kind);
+  });
+  const bonusRec = DB.bonus[empId] && DB.bonus[empId][jy+'-'+pad2(jm)];
+  aoa.push(['جمع کل اضافه‌کار','','','','', (sum===0?faDigits(0):(sum>0?'+':'−')+faDigits(Math.abs(Math.round(sum*100)/100)))]);
+  rowMeta.push('sum');
+  if(bonusRec){
+    aoa.push([bonusRec.type==='bonus'?'پاداش':'جریمه', faDigits(bonusRec.amount.toLocaleString('en-US'))+' تومان', bonusRec.note||'', '', '', '']);
+    rowMeta.push('bonus');
+  }
+  const label = employeeExportLabel(emp);
+  aoa.unshift([label,'','','','','']);
+  return { aoa, rowMeta, name: emp? emp.name : empId, label };
+}
+function styleSheet(ws, aoa, rowMeta){
+  const range = XLSX.utils.decode_range(ws['!ref']);
+  ws['!sheetViews']=[{ rightToLeft:true }];
+  const colCount = aoa[1] ? aoa[1].length : aoa[0].length;
+  if(!ws['!merges']) ws['!merges']=[];
+  ws['!merges'].push({ s:{r:0,c:0}, e:{r:0,c:colCount-1} });
+  const colWidths = (aoa[1]||aoa[0]).map((_,c)=>{
+    let max=6;
+    aoa.forEach(r=>{ const v=r[c]==null?'':String(r[c]); if(v.length>max) max=v.length; });
+    return { wch: max+3 };
+  });
+  ws['!cols']=colWidths;
+  for(let R=range.s.r; R<=range.e.r; R++){
+    for(let C=range.s.c; C<=range.e.c; C++){
+      const addr=XLSX.utils.encode_cell({r:R,c:C});
+      if(!ws[addr]) continue;
+      let fill=null;
+      if(R===0) fill='1F2937';
+      else if(R===1) fill='0D9488';
+      else{
+        const kind=rowMeta[R-2];
+        if(kind==='friday') fill='EDE9FE';
+        else if(kind==='leave') fill='D1FAE5';
+        else if(kind==='holiday') fill='FEE2E2';
+        else if(kind==='sum') fill='1F2937';
+        else if(kind==='bonus') fill='FEF3C7';
+      }
+      ws[addr].s = {
+        alignment:{ horizontal:'center', vertical:'center', wrapText:true },
+        font: (R===0||R===1)? { bold:true, color:{rgb:'FFFFFF'} } : (rowMeta[R-2]==='sum'? {bold:true,color:{rgb:'FFFFFF'}}:{}),
+        fill: fill? { fgColor:{rgb:fill} } : undefined
+      };
+    }
+  }
+}
+function exportEmployeeExcel(empId, jy, jm){
+  const {aoa, rowMeta, name} = buildEmployeeSheetData(empId, jy, jm);
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+  styleSheet(ws, aoa, rowMeta);
+  XLSX.utils.book_append_sheet(wb, ws, sanitizeSheetName(name));
+  XLSX.writeFile(wb, name+'_'+MONTH_NAMES[jm-1]+'_'+jy+'.xlsx');
+}
+function exportAllExcel(jy, jm){
+  const wb=XLSX.utils.book_new();
+  const used={};
+  DB.employees.forEach(e=>{
+    const hasData = DB.records[e.id] && Object.keys(DB.records[e.id]).some(k=>k.startsWith(jy+'-'+pad2(jm)));
+    if(!hasData && e.active===false) return; // skip fired employees with no data this month
+    const {aoa, rowMeta, name} = buildEmployeeSheetData(e.id, jy, jm);
+    const ws=XLSX.utils.aoa_to_sheet(aoa);
+    styleSheet(ws, aoa, rowMeta);
+    let sn=sanitizeSheetName(name);
+    if(used[sn]){ used[sn]++; sn=sn.slice(0,28)+'_'+used[sn]; } else used[sn]=1;
+    XLSX.utils.book_append_sheet(wb, ws, sn);
+  });
+  XLSX.writeFile(wb, 'گزارش_کلی_'+MONTH_NAMES[jm-1]+'_'+jy+'.xlsx');
+}
+document.getElementById('repExportXlsx').onclick=()=> exportEmployeeExcel(reportCtx.empId, reportCtx.jy, reportCtx.jm);
+document.getElementById('exportAllBtn').onclick=()=> exportAllExcel(chartYM.jy, chartYM.jm);
+
+/* ============================================================
+   PDF EXPORT (print-based, for correct Persian rendering)
+   ============================================================ */
+function faTime(t){ return t? faDigits(t) : t; }
+function printHtmlReport(title, sections){
+  const w=window.open('', '_blank');
+  const style=`
+    <style>
+      body{font-family:Tahoma, sans-serif; direction:rtl; padding:20px; color:#111}
+      h1{font-size:18px} h2{font-size:14px;margin-top:26px}
+      table{width:100%;border-collapse:collapse;margin-top:8px}
+      th,td{border:1px solid #ccc;padding:6px;text-align:center;font-size:12px}
+      th{background:#0d9488;color:#fff}
+      tr.friday td{background:#f3f0ff}
+      tr.leave td{background:#ecfdf5}
+      tr.holiday td{background:#fef2f2}
+      tr.sum td{font-weight:bold;background:#f3f4f6}
+      tr.bonus td{font-weight:bold;background:#fef3c7}
+      .print-bar{margin-bottom:16px}
+      .print-bar button{font-family:Tahoma,sans-serif;padding:9px 18px;border-radius:8px;border:none;background:#0d9488;color:#fff;font-size:13px;cursor:pointer}
+      @media print{ .no-print{display:none} }
+    </style>`;
+  w.document.write(`<html dir="rtl"><head><meta charset="utf-8"><title>${title}</title>${style}</head><body>
+    <div class="print-bar no-print"><button onclick="window.print()">چاپ / ذخیره PDF</button></div>
+    <h1>${title}</h1>${sections}
+  </body></html>`);
+  w.document.close();
+}
+function reportSectionHtml(empId, jy, jm){
+  const emp=DB.employees.find(e=>e.id===empId);
+  const {rows,sum}=monthSummary(empId,jy,jm);
+  let rowsHtml='';
+  rows.forEach((info,i)=>{
+    const d=i+1;
+    let cls='';
+    if(info.holidayTitle) cls='holiday'; else if(info.isFriday) cls='friday'; else if(info.leave) cls='leave';
+    let inCell='—',outCell='—',note=info.note||'';
+    if(info.type==='future'){ inCell='۰'; outCell='۰'; }
+    else if(info.holidayTitle){ note=info.label||note; }
+    else if(info.isFriday){ inCell='—'; outCell='—'; }
+    else if(info.leave){ note='مرخصی'+(info.note?(' - '+info.note):''); }
+    else { inCell=faTime(info.in)||'۰'; outCell=faTime(info.out)||'۰'; }
+    const diffTxt = info.type==='future'?'—':fmtDiffPlain(info.diff);
+    rowsHtml+=`<tr class="${cls}"><td>${faDigits(d)}</td><td>${info.weekdayName}</td><td>${inCell}</td><td>${outCell}</td><td>${escapeHtml(note)}</td><td>${diffTxt}</td></tr>`;
+  });
+  rowsHtml+=`<tr class="sum"><td colspan="5">جمع کل اضافه‌کار</td><td>${fmtDiffFull(sum)}</td></tr>`;
+  const bonusRec = DB.bonus[empId] && DB.bonus[empId][jy+'-'+pad2(jm)];
+  if(bonusRec){
+    rowsHtml+=`<tr class="bonus"><td colspan="6">${bonusRec.type==='bonus'?'پاداش':'جریمه'}: ${faDigits(bonusRec.amount.toLocaleString('en-US'))} تومان${bonusRec.note? (' — '+escapeHtml(bonusRec.note)):''}</td></tr>`;
+  }
+  return `<h2>${escapeHtml(employeeExportLabel(emp))} — ${MONTH_NAMES[jm-1]} ${faDigits(jy)}</h2>
+    <table><thead><tr><th>روز</th><th>روز هفته</th><th>ورود</th><th>خروج</th><th>توضیحات</th><th>کسری/اضافه‌کار</th></tr></thead>
+    <tbody>${rowsHtml}</tbody></table>`;
+}
+function fmtDiffPlain(h){
+  if(h==null) return '—';
+  const r=Math.round(h*100)/100;
+  if(Math.abs(r)<0.001) return faDigits(0);
+  return (r>0?'+':'−')+faDigits(Math.abs(r));
+}
+document.getElementById('repExportPdf').onclick=()=>{
+  const html=reportSectionHtml(reportCtx.empId, reportCtx.jy, reportCtx.jm);
+  const emp=DB.employees.find(e=>e.id===reportCtx.empId);
+  printHtmlReport('گزارش حضور و غیاب - '+(emp?emp.name:''), html);
+};
+document.getElementById('exportAllPdfBtn').onclick=()=>{
+  let html='';
+  DB.employees.forEach(e=>{
+    const hasData = DB.records[e.id] && Object.keys(DB.records[e.id]).some(k=>k.startsWith(chartYM.jy+'-'+pad2(chartYM.jm)));
+    if(!hasData && e.active===false) return; // skip fired employees with no data this month
+    html+=reportSectionHtml(e.id, chartYM.jy, chartYM.jm);
+  });
+  printHtmlReport('گزارش کلی حضور و غیاب - '+MONTH_NAMES[chartYM.jm-1]+' '+faDigits(chartYM.jy), html);
+};
+
+/* ============================================================
+   SIDEBAR / SETTINGS
+   ============================================================ */
+document.getElementById('burgerBtn').onclick=()=>{
+  document.getElementById('sidePanel').classList.add('show');
+  document.getElementById('sideOverlay').classList.add('show');
+  document.getElementById('ghOwner').value=ghSettings.owner;
+  document.getElementById('ghRepo').value=ghSettings.repo;
+  document.getElementById('ghBranch').value=ghSettings.branch;
+  document.getElementById('ghPath').value=ghSettings.path;
+  document.getElementById('ghToken').value=ghSettings.token;
+  const ws=DB.settings||{workIn:'08:00',workOut:'18:00',thuOut:'14:00',reminderHour:17,reminderMinute:0};
+  document.getElementById('wsIn').value=ws.workIn;
+  document.getElementById('wsOut').value=ws.workOut;
+  document.getElementById('wsThuOut').value=ws.thuOut;
+  document.getElementById('remHour').value=ws.reminderHour;
+  document.getElementById('remMinute').value=ws.reminderMinute;
+  renderHolList();
+  renderOtEmpSelect();
+  renderOtWeekdayChks();
+  renderOtRulesList();
+  document.getElementById('reminderStatus').textContent=reminderStatusText();
+};
+document.getElementById('saveWorkHoursBtn').onclick=()=>{
+  const inV=document.getElementById('wsIn').value || '08:00';
+  const outV=document.getElementById('wsOut').value || '18:00';
+  const thuV=document.getElementById('wsThuOut').value || '14:00';
+  DB.settings = Object.assign(DB.settings||{}, { workIn:inV, workOut:outV, thuOut:thuV });
+  mutate('تغییر ساعات کاری پیش‌فرض: ورود '+inV+' - خروج '+outV+' - خروج پنج‌شنبه '+thuV);
+};
+document.getElementById('sideOverlay').onclick=()=>{
+  document.getElementById('sidePanel').classList.remove('show');
+  document.getElementById('sideOverlay').classList.remove('show');
+};
+document.getElementById('saveSettingsBtn').onclick=async ()=>{
+  ghSettings = {
+    owner: document.getElementById('ghOwner').value.trim(),
+    repo: document.getElementById('ghRepo').value.trim(),
+    branch: document.getElementById('ghBranch').value.trim() || 'main',
+    path: document.getElementById('ghPath').value.trim() || 'data.json',
+    token: document.getElementById('ghToken').value.trim()
+  };
+  localStorage.setItem('attendance_gh_settings', JSON.stringify(ghSettings));
+  document.getElementById('ghStatus').textContent='تنظیمات ذخیره شد. در حال بارگذاری اولیه...';
+  await loadFromGithub(false);
+  document.getElementById('ghStatus').textContent='متصل شد.';
+};
+document.getElementById('reloadGhBtn').onclick=()=> loadFromGithub(false);
+
+document.getElementById('backupDownloadBtn').onclick=()=>{
+  const blob = new Blob([JSON.stringify(DB, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const now = new Date();
+  a.href = url;
+  a.download = 'attendance_backup_'+now.getFullYear()+pad2(now.getMonth()+1)+pad2(now.getDate())+'.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+};
+document.getElementById('backupRestoreBtn').onclick=()=>{
+  document.getElementById('backupFileInput').click();
+};
+document.getElementById('backupFileInput').addEventListener('change', (ev)=>{
+  const file = ev.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const parsed = JSON.parse(reader.result);
+      if(!confirm('بازیابی از فایل پشتیبان، تمام داده‌های فعلی را جایگزین می‌کند. ادامه می‌دهید؟')) return;
+      DB = Object.assign({employees:[],records:{},bonus:{},holidays:{},logs:[],overtimeRules:[],settings:{workIn:'08:00',workOut:'18:00',thuOut:'14:00',reminderHour:17,reminderMinute:0}}, parsed);
+      DB.settings = Object.assign({workIn:'08:00',workOut:'18:00',thuOut:'14:00',reminderHour:17,reminderMinute:0}, DB.settings||{});
+      DB.overtimeRules = DB.overtimeRules||[];
+      ensureManagerSeed();
+      mutate('بازیابی داده‌ها از فایل پشتیبان');
+      document.getElementById('ghStatus').textContent = 'داده‌ها از فایل بازیابی شد. برای هماهنگ‌سازی، دوباره به گیت‌هاب ذخیره خواهد شد.';
+    }catch(e){
+      alert('فایل پشتیبان معتبر نیست.');
+    }
+  };
+  reader.readAsText(file);
+  ev.target.value = '';
+});
+
+/* ============================================================
+   OVERTIME RULE UI (اضافه‌کاری ویژه‌ی یک نیرو)
+   ============================================================ */
+function renderOtEmpSelect(){
+  const sel=document.getElementById('otEmpSelect');
+  const prev = sel.value;
+  sel.innerHTML = DB.employees.filter(e=>e.active!==false).map(e=>
+    `<option value="${e.id}">${escapeHtml(e.name)}</option>`
+  ).join('');
+  if(prev && DB.employees.some(e=>e.id===prev)) sel.value=prev;
+}
+function renderOtWeekdayChks(){
+  const wrap=document.getElementById('otWeekdaysChks');
+  wrap.innerHTML = WEEKDAYS.map((w,i)=> `<label class="wd-chk"><input type="checkbox" class="otWdChk" value="${i}"> ${w}</label>`).join('');
+}
+document.getElementById('otScope').onchange=(ev)=>{
+  document.getElementById('otWeekdaysWrap').style.display = ev.target.value==='weekdays'?'block':'none';
+};
+document.getElementById('otTodayBtn').onclick=()=>{
+  document.getElementById('otStartDate').value = dateKey(today.jy,today.jm,today.jd);
+};
+function otRuleScopeText(r){
+  return r.scope==='weekdays'
+    ? 'فقط ' + (r.weekdays||[]).slice().sort().map(i=>WEEKDAYS[i]).join('، ')
+    : 'همه‌ی روزها (به‌جز جمعه/تعطیل رسمی)';
+}
+function renderOtRulesList(){
+  const wrap=document.getElementById('otRulesList');
+  const rules=(DB.overtimeRules||[]).slice().sort((a,b)=> (b.createdAt||'').localeCompare(a.createdAt||''));
+  if(rules.length===0){ wrap.innerHTML='<div class="hint">هیچ قانون اضافه‌کاری ثبت نشده.</div>'; return; }
+  wrap.innerHTML = rules.map(r=>{
+    const emp = DB.employees.find(e=>e.id===r.empId);
+    const name = emp? emp.name : '(نیروی حذف‌شده)';
+    const active = !r.endDate;
+    const statusHtml = active? '<span class="ot-status on">فعال</span>' : `<span class="ot-status off">کنسل‌شده از ${faDigits(r.endDate)}</span>`;
+    return `<div class="ot-card">
+      <div class="ot-top"><span class="ot-name">${escapeHtml(name)}</span>${statusHtml}</div>
+      <div class="ot-meta">
+        ${faDigits(r.hours)} ساعت اضافه‌کار، از تاریخ ${faDigits(r.startDate)}<br>
+        ${otRuleScopeText(r)}
+      </div>
+      <div class="ot-actions">
+        ${active? `<button class="btn secondary" onclick="cancelOvertimeRule('${r.id}')">کنسل کردن</button>`:''}
+        <button class="btn danger" onclick="deleteOvertimeRule('${r.id}')">حذف کامل</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+document.getElementById('addOtRuleBtn').onclick=()=>{
+  const empId = document.getElementById('otEmpSelect').value;
+  if(!empId){ alert('یک نیرو انتخاب کنید.'); return; }
+  let startDate = faToEn(document.getElementById('otStartDate').value.trim());
+  if(!startDate) startDate = dateKey(today.jy,today.jm,today.jd);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(startDate)){ alert('تاریخ شروع معتبر نیست. مثال: 1403-05-31'); return; }
+  const hours = parseFloat(faToEn(document.getElementById('otHours').value));
+  if(!hours || hours<=0){ alert('میزان ساعت اضافه‌کاری را وارد کنید.'); return; }
+  const scope = document.getElementById('otScope').value;
+  let weekdays=null;
+  if(scope==='weekdays'){
+    weekdays = Array.from(document.querySelectorAll('.otWdChk:checked')).map(c=>parseInt(c.value,10));
+    if(weekdays.length===0){ alert('حداقل یک روز هفته را انتخاب کنید.'); return; }
+  }
+  const emp = DB.employees.find(e=>e.id===empId);
+  DB.overtimeRules = DB.overtimeRules||[];
+  DB.overtimeRules.push({
+    id: uid(), empId, startDate, endDate:null, hours, scope, weekdays,
+    createdAt: dateKey(today.jy,today.jm,today.jd)
+  });
+  document.getElementById('otHours').value='';
+  document.getElementById('otStartDate').value='';
+  mutate('افزودن قانون اضافه‌کاری برای '+(emp?emp.name:'')+': '+hours+' ساعت ('+(scope==='weekdays'?'روزهای خاص':'همه‌ی روزها')+')');
+  renderOtRulesList();
+};
+function cancelOvertimeRule(id){
+  const r=(DB.overtimeRules||[]).find(x=>x.id===id);
+  if(!r || r.endDate) return;
+  r.endDate = dateKey(today.jy,today.jm,today.jd);
+  const emp = DB.employees.find(e=>e.id===r.empId);
+  mutate('کنسل قانون اضافه‌کاری '+(emp?emp.name:'')+' از تاریخ '+r.endDate);
+  renderOtRulesList();
+}
+function deleteOvertimeRule(id){
+  if(!confirm('حذف کامل این قانون اضافه‌کاری؟ همه‌ی ساعت‌های اضافه‌ی حساب‌شده بر اساس آن (گذشته و آینده) به حالت قبل برمی‌گردد.')) return;
+  const r=(DB.overtimeRules||[]).find(x=>x.id===id);
+  if(!r) return;
+  const emp = DB.employees.find(e=>e.id===r.empId);
+  DB.overtimeRules = (DB.overtimeRules||[]).filter(x=>x.id!==id);
+  mutate('حذف کامل قانون اضافه‌کاری '+(emp?emp.name:''));
+  renderOtRulesList();
+}
+
+function renderHolList(){
+  const wrap=document.getElementById('holList');
+  const keys=Object.keys(DB.holidays);
+  if(keys.length===0){ wrap.innerHTML='هیچ تعطیلی رسمی ثبت نشده'; return; }
+  wrap.innerHTML = keys.sort().map(k=>`<div style="display:flex;justify-content:space-between;margin-bottom:6px">
+    <span>${faDigits(k)} — ${escapeHtml(DB.holidays[k])}</span>
+    <span style="cursor:pointer;color:var(--bad)" onclick="removeHoliday('${k}')">حذف</span></div>`).join('');
+}
+document.getElementById('addHolBtn').onclick=()=>{
+  const d=document.getElementById('holDate').value.trim();
+  const t=document.getElementById('holTitle').value.trim();
+  if(!d || !t) return;
+  DB.holidays[d]=t;
+  document.getElementById('holDate').value='';
+  document.getElementById('holTitle').value='';
+  mutate('افزودن تعطیلی رسمی: '+t+' ('+d+')');
+  renderHolList();
+}
+function removeHoliday(k){
+  delete DB.holidays[k];
+  mutate('حذف تعطیلی رسمی: '+k);
+  renderHolList();
+}
+
+/* ============================================================
+   DAILY 5PM REMINDER
+   ============================================================ */
+function reminderStatusText(){
+  if(!('Notification' in window)) return 'مرورگر شما از یادآور پشتیبانی نمی‌کند.';
+  if(Notification.permission==='granted') return 'یادآور فعال است. (نیاز به باز بودن این صفحه)';
+  if(Notification.permission==='denied') return 'اجازه‌ی نمایش پیغام رد شده؛ از تنظیمات مرورگر آن را فعال کنید.';
+  return 'یادآور هنوز فعال نشده است.';
+}
+document.getElementById('enableReminderBtn').onclick=async ()=>{
+  if(!('Notification' in window)){ document.getElementById('reminderStatus').textContent=reminderStatusText(); return; }
+  await Notification.requestPermission();
+  document.getElementById('reminderStatus').textContent=reminderStatusText();
+};
+document.getElementById('saveReminderTimeBtn').onclick=()=>{
+  let h=parseInt(document.getElementById('remHour').value,10);
+  let m=parseInt(document.getElementById('remMinute').value,10);
+  if(isNaN(h) || h<0 || h>23) h=17;
+  if(isNaN(m) || m<0 || m>59) m=0;
+  DB.settings = Object.assign(DB.settings||{}, { reminderHour:h, reminderMinute:m });
+  mutate('تغییر زمان یادآور به '+pad2(h)+':'+pad2(m));
+  document.getElementById('reminderStatus').textContent = 'زمان یادآور به ساعت '+faDigits(pad2(h))+':'+faDigits(pad2(m))+' تغییر کرد. '+reminderStatusText();
+};
+function checkReminder(){
+  const now=new Date();
+  const ws=DB.settings||{reminderHour:17,reminderMinute:0};
+  if(now.getHours()!==ws.reminderHour || now.getMinutes()!==ws.reminderMinute) return;
+  const todayStr = now.getFullYear()+'-'+pad2(now.getMonth()+1)+'-'+pad2(now.getDate());
+  const lastShown = localStorage.getItem('attendance_reminder_last');
+  if(lastShown===todayStr) return;
+  localStorage.setItem('attendance_reminder_last', todayStr);
+  if('Notification' in window && Notification.permission==='granted'){
+    try{ new Notification('یادآور حضور و غیاب', { body:'وقت ثبت ورود/خروج نیروهاست، فراموش نکنید.' }); }catch(e){}
+  } else {
+    alert('یادآور: وقت ثبت ورود/خروج نیروهاست، فراموش نکنید.');
+  }
+}
+function initReminder(){
+  document.getElementById('reminderStatus').textContent = reminderStatusText();
+  checkReminder();
+  setInterval(checkReminder, 30000);
+}
+
+/* ============================================================
+   MOTIVATIONAL QUOTE (جمله‌ی انگیزشی روزانه)
+   ============================================================ */
+const MOTIVATIONAL_QUOTES = [
+  'هر روز یک فرصت تازه برای بهتر شدنه؛ قدر امروزت رو بدون.',
+  'کارِ امروز رو به فردا نسپار، آینده از همین امروز ساخته می‌شه.',
+  'نظم و پشتکار، از استعداد هم قوی‌تره.',
+  'موفقیت یعنی هر روز، یک قدم کوچیک جلوتر از دیروز.',
+  'تلاش خسته‌کننده نیست، بی‌هدفی خسته‌کننده‌ست.',
+  'بهترین زمان برای شروع، همین حالاست.',
+  'کیفیت کار، امضای واقعی هر آدمه.',
+  'هیچ تلاشی بی‌نتیجه نمی‌مونه، فقط زمان می‌بره تا نتیجه‌ش رو ببینی.',
+  'یک تیم قوی، از تک‌تک افراد منظم و متعهدش ساخته می‌شه.',
+  'امروز رو خوب بساز، فردا خودش شکل می‌گیره.',
+  'هر ساعت کاری که با دقت انجام بشه، سرمایه‌ی فرداته.',
+  'انگیزه شروعت می‌کنه، عادت نگهت می‌داره.',
+  'مسیر موفقیت همیشه از میان تلاش‌های روزمره می‌گذره.',
+  'وقت‌شناسی، اولین نشونه‌ی احترام به کار و همکاراست.',
+  'کارِ خوب، نتیجه‌ی روزهای پیوسته‌ی خوبه، نه یک روز عالی.',
+  'هر چالش امروز، تجربه‌ی ارزشمند فرداته.'
+];
+function renderQuote(){
+  const el=document.getElementById('quoteText');
+  if(!el) return;
+  el.textContent = MOTIVATIONAL_QUOTES[Math.floor(Math.random()*MOTIVATIONAL_QUOTES.length)];
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+function renderAll(){
+  renderTodayLine();
+  renderEmpList();
+  renderChartSection();
+  renderCalendar();
+  renderMainLog();
+}
+loadLocal();
+renderAll();
+renderQuote();
+if(ghConfigured()){ loadFromGithub(true); } else { setBadge('', 'گیت‌هاب تنظیم نشده — از منو ☰ متصل شوید'); }
+initReminder();
+</script>
+</body>
+</html>
