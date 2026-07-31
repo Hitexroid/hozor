@@ -208,6 +208,10 @@
   "holidays": {},
   "logs": [
     {
+      "ts": "2026-07-31T19:37:04.699Z",
+      "text": "افزودن قانون اضافه‌کاری برای هارون: 2 ساعت (روزهای خاص)"
+    },
+    {
       "ts": "2026-07-31T19:25:16.596Z",
       "text": "تغییر زمان یادآور به 22:56"
     },
@@ -517,6 +521,18 @@
       "hours": 1,
       "scope": "all",
       "weekdays": null,
+      "createdAt": "1405-05-09"
+    },
+    {
+      "id": "ems9cg9164qica",
+      "empId": "ems294qfy7qi9u",
+      "startDate": "1405-05-01",
+      "endDate": null,
+      "hours": 2,
+      "scope": "weekdays",
+      "weekdays": [
+        6
+      ],
       "createdAt": "1405-05-09"
     }
   ],
