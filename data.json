@@ -208,6 +208,10 @@
   "holidays": {},
   "logs": [
     {
+      "ts": "2026-07-31T19:22:45.801Z",
+      "text": "حذف کامل قانون اضافه‌کاری غلام سخی"
+    },
+    {
       "ts": "2026-07-31T19:22:28.063Z",
       "text": "کنسل قانون اضافه‌کاری غلام سخی از تاریخ 1405-05-09"
     },
@@ -496,18 +500,7 @@
       "text": "افزودن نیرو: خیرالله"
     }
   ],
-  "overtimeRules": [
-    {
-      "id": "ems9bvkf5x8ipf",
-      "empId": "ems294wom5sdes",
-      "startDate": "1405-05-06",
-      "endDate": "1405-05-09",
-      "hours": 1,
-      "scope": "all",
-      "weekdays": null,
-      "createdAt": "1405-05-09"
-    }
-  ],
+  "overtimeRules": [],
   "settings": {
     "workIn": "08:00",
     "workOut": "18:00",
