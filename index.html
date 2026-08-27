@@ -1988,7 +1988,7 @@ function buildEmployeeSheetData(empId, jy, jm){
     else if(info.isFriday){ inCell='—'; outCell='—'; }
     else if(info.leave){ note = 'مرخصی'+(info.note?(' - '+info.note):''); }
     else { inCell = faTime(info.in)||''; outCell = faTime(info.out)||''; }
-    const diffTxt = info.type==='future' ? '' : (info.diff==null?'' : (info.diff===0? faDigits(0) : (info.diff>0?'+':'−')+faDigits(Math.abs(Math.round(info.diff*100)/100))));
+    const diffTxt = info.type==='future' ? '' : fmtDiffFull(info.diff);
     aoa.push([ faDigits(d), info.weekdayName, inCell, outCell, note, diffTxt ]);
     let kind='normal';
     if(info.isFriday) kind='friday';
@@ -1997,7 +1997,7 @@ function buildEmployeeSheetData(empId, jy, jm){
     rowMeta.push(kind);
   });
   const bonusRec = DB.bonus[empId] && DB.bonus[empId][jy+'-'+pad2(jm)];
-  aoa.push(['جمع کل اضافه‌کار','','','','', (sum===0?faDigits(0):(sum>0?'+':'−')+faDigits(Math.abs(Math.round(sum*100)/100)))]);
+  aoa.push(['جمع کل اضافه‌کار این ماه','','','','', fmtDiffFull(sum)]);
   rowMeta.push('sum');
   if(bonusRec){
     aoa.push([bonusRec.type==='bonus'?'پاداش':'جریمه', faDigits(bonusRec.amount.toLocaleString('en-US'))+' تومان', bonusRec.note||'', '', '', '']);
@@ -2085,6 +2085,7 @@ function printHtmlReport(title, sections){
       tr.leave td{background:#ecfdf5}
       tr.holiday td{background:#fef2f2}
       tr.sum td{font-weight:bold;background:#f3f4f6}
+      .emp-page{page-break-after:always;break-after:page;margin-bottom:40px}
       tr.bonus td{font-weight:bold;background:#fef3c7}
       .print-bar{margin-bottom:16px}
       .print-bar button{font-family:Tahoma,sans-serif;padding:9px 18px;border-radius:8px;border:none;background:#8b5cf6;color:#fff;font-size:13px;cursor:pointer}
@@ -2118,9 +2119,9 @@ function reportSectionHtml(empId, jy, jm){
   if(bonusRec){
     rowsHtml+=`<tr class="bonus"><td colspan="6">${bonusRec.type==='bonus'?'پاداش':'جریمه'}: ${faDigits(bonusRec.amount.toLocaleString('en-US'))} تومان${bonusRec.note? (' — '+escapeHtml(bonusRec.note)):''}</td></tr>`;
   }
-  return `<h2>${escapeHtml(employeeExportLabel(emp))} — ${MONTH_NAMES[jm-1]} ${faDigits(jy)}</h2>
+  return `<div class="emp-page"><h2>${escapeHtml(employeeExportLabel(emp))} — ${MONTH_NAMES[jm-1]} ${faDigits(jy)}</h2>
     <table><thead><tr><th>روز</th><th>روز هفته</th><th>ورود</th><th>خروج</th><th>توضیحات</th><th>کسری/اضافه‌کار</th></tr></thead>
-    <tbody>${rowsHtml}</tbody></table>`;
+    <tbody>${rowsHtml}</tbody></table></div>`;
 }
 function fmtDiffPlain(h){
   if(h==null) return '—';
