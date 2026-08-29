@@ -172,6 +172,16 @@
       "leftAt": null,
       "startDate": "1405-05-13",
       "inactivePeriods": []
+    },
+    {
+      "id": "emtek53lnx2lm4",
+      "name": "امیرحسین",
+      "role": "پولیش کار",
+      "active": true,
+      "createdAt": "1405-06-07",
+      "leftAt": null,
+      "startDate": "1405-06-07",
+      "inactivePeriods": []
     }
   ],
   "records": {
@@ -462,6 +472,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-08-29T15:50:54.588Z",
+      "text": "افزودن نیرو: امیرحسین (استخدام جدید از امروز)"
+    },
     {
       "ts": "2026-08-27T14:33:35.478Z",
       "text": "ثبت/ویرایش تردد محمدطاحا - ۵ شهریور ۱۴۰۵"
