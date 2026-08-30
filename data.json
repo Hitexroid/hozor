@@ -182,6 +182,16 @@
       "leftAt": null,
       "startDate": "1405-06-07",
       "inactivePeriods": []
+    },
+    {
+      "id": "emtg8duhuywt1u",
+      "name": "امین رنگرز",
+      "role": "بسته‌بندی",
+      "active": true,
+      "createdAt": "1405-06-08",
+      "leftAt": null,
+      "startDate": "1405-06-08",
+      "inactivePeriods": []
     }
   ],
   "records": {
@@ -478,6 +488,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-08-30T19:57:19.650Z",
+      "text": "افزودن نیرو: امین رنگرز (استخدام جدید از امروز)"
+    },
     {
       "ts": "2026-08-29T17:46:57.073Z",
       "text": "ثبت/ویرایش تردد عزیز - ۸ شهریور ۱۴۰۵"
