@@ -202,6 +202,16 @@
       "leftAt": null,
       "startDate": "1405-06-08",
       "inactivePeriods": []
+    },
+    {
+      "id": "emtpu9i7alvmrp",
+      "name": "حسین یوسفی",
+      "role": "سفارشات و ارسال",
+      "active": true,
+      "createdAt": "1405-06-15",
+      "leftAt": null,
+      "startDate": "1405-06-15",
+      "inactivePeriods": []
     }
   ],
   "records": {
@@ -571,6 +581,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-09-06T13:19:44.230Z",
+      "text": "افزودن نیرو: حسین یوسفی (استخدام جدید از امروز)"
+    },
     {
       "ts": "2026-09-06T13:19:11.992Z",
       "text": "ثبت جریمه برای محسن محمدزاده در شهریور"
