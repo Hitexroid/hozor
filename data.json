@@ -212,6 +212,16 @@
       "leftAt": null,
       "startDate": "1405-06-15",
       "inactivePeriods": []
+    },
+    {
+      "id": "emtzrbmjl926rr",
+      "name": "علی به کردار",
+      "role": "پولیش کار",
+      "active": true,
+      "createdAt": "1405-06-22",
+      "leftAt": null,
+      "startDate": "1405-06-22",
+      "inactivePeriods": []
     }
   ],
   "records": {
@@ -628,6 +638,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-09-13T11:55:06.081Z",
+      "text": "افزودن نیرو: علی به کردار (استخدام جدید از امروز)"
+    },
     {
       "ts": "2026-09-13T11:54:32.825Z",
       "text": "ثبت/ویرایش تردد غلام خوشحال - ۲۲ شهریور ۱۴۰۵"
