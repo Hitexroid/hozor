@@ -222,6 +222,16 @@
       "leftAt": null,
       "startDate": "1405-06-22",
       "inactivePeriods": []
+    },
+    {
+      "id": "emu29gawax08eg",
+      "name": "عبدالله",
+      "role": "تزریق کار",
+      "active": true,
+      "createdAt": "1405-06-24",
+      "leftAt": null,
+      "startDate": "1405-06-24",
+      "inactivePeriods": []
     }
   ],
   "records": {
@@ -653,6 +663,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-09-15T05:58:09.706Z",
+      "text": "افزودن نیرو: عبدالله (استخدام جدید از امروز)"
+    },
     {
       "ts": "2026-09-15T05:57:53.746Z",
       "text": "ثبت جریمه برای خانم محمدی در شهریور"
