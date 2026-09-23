@@ -236,6 +236,16 @@
       "leftAt": null,
       "startDate": "1405-06-24",
       "inactivePeriods": []
+    },
+    {
+      "id": "emudmc8i8v31ax",
+      "name": "امید",
+      "role": "وسط کار",
+      "active": true,
+      "createdAt": "1405-07-01",
+      "leftAt": null,
+      "startDate": "1405-07-01",
+      "inactivePeriods": []
     }
   ],
   "records": {
@@ -744,6 +754,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-09-23T04:44:22.928Z",
+      "text": "افزودن نیرو: امید (استخدام جدید از امروز)"
+    },
     {
       "ts": "2026-09-23T04:43:29.546Z",
       "text": "ثبت/ویرایش تردد نصرت - ۳۱ شهریور ۱۴۰۵"
