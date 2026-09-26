@@ -231,11 +231,16 @@
       "id": "emu29gawax08eg",
       "name": "عبدالله",
       "role": "تزریق کار",
-      "active": true,
+      "active": false,
       "createdAt": "1405-06-24",
-      "leftAt": null,
+      "leftAt": "1405-07-04",
       "startDate": "1405-06-24",
-      "inactivePeriods": []
+      "inactivePeriods": [
+        {
+          "from": "1405-07-04",
+          "to": null
+        }
+      ]
     },
     {
       "id": "emudmc8i8v31ax",
@@ -767,6 +772,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-09-26T00:42:09.614Z",
+      "text": "اخراج نیرو: عبدالله"
+    },
     {
       "ts": "2026-09-23T06:53:14.483Z",
       "text": "ثبت/ویرایش تردد عبدالله - ۱ مهر ۱۴۰۵"
