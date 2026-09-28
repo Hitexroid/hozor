@@ -211,11 +211,16 @@
       "id": "emtpu9i7alvmrp",
       "name": "حسین یوسفی",
       "role": "سفارشات و ارسال",
-      "active": true,
+      "active": false,
       "createdAt": "1405-06-15",
-      "leftAt": null,
+      "leftAt": "1405-07-06",
       "startDate": "1405-06-15",
-      "inactivePeriods": []
+      "inactivePeriods": [
+        {
+          "from": "1405-07-06",
+          "to": null
+        }
+      ]
     },
     {
       "id": "emtzrbmjl926rr",
@@ -796,6 +801,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-09-28T08:42:54.151Z",
+      "text": "اخراج نیرو: حسین یوسفی"
+    },
     {
       "ts": "2026-09-27T05:16:57.565Z",
       "text": "ثبت/ویرایش تردد نورمحمد - ۴ مهر ۱۴۰۵"
