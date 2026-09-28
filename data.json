@@ -256,6 +256,16 @@
       "leftAt": null,
       "startDate": "1405-07-01",
       "inactivePeriods": []
+    },
+    {
+      "id": "emul064pji6dyd",
+      "name": "عرفان خوشحال",
+      "role": "پولیش کار",
+      "active": true,
+      "createdAt": "1405-07-06",
+      "leftAt": null,
+      "startDate": "1405-07-06",
+      "inactivePeriods": []
     }
   ],
   "records": {
@@ -826,6 +836,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-09-28T08:45:55.927Z",
+      "text": "افزودن نیرو: عرفان خوشحال (استخدام جدید از امروز)"
+    },
     {
       "ts": "2026-09-28T08:45:28.626Z",
       "text": "ثبت/ویرایش تردد امید حمیدی - ۶ مهر ۱۴۰۵"
