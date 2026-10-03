@@ -917,6 +917,12 @@
         "leave": true,
         "note": ""
       }
+    },
+    "emurxofide6hne": {
+      "1405-07-05": {
+        "leave": true,
+        "note": ""
+      }
     }
   },
   "bonus": {
@@ -990,10 +996,15 @@
     },
     "emtpu9i7alvmrp": {},
     "emu29gawax08eg": {},
-    "emudmc8i8v31ax": {}
+    "emudmc8i8v31ax": {},
+    "emurxofide6hne": {}
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-10-03T05:11:33.099Z",
+      "text": "ثبت/ویرایش تردد شیرآقا - ۵ مهر ۱۴۰۵"
+    },
     {
       "ts": "2026-10-03T05:10:34.118Z",
       "text": "افزودن نیرو: شیرآقا"
