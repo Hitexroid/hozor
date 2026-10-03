@@ -266,6 +266,16 @@
       "leftAt": null,
       "startDate": "1405-07-06",
       "inactivePeriods": []
+    },
+    {
+      "id": "emurxofide6hne",
+      "name": "شیرآقا",
+      "role": "وسط کار",
+      "active": true,
+      "createdAt": "1405-07-11",
+      "leftAt": null,
+      "startDate": null,
+      "inactivePeriods": []
     }
   ],
   "records": {
@@ -984,6 +994,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-10-03T05:10:34.118Z",
+      "text": "افزودن نیرو: شیرآقا"
+    },
     {
       "ts": "2026-10-03T04:50:54.482Z",
       "text": "ثبت جریمه برای نجیب محمدزاده در مهر"
