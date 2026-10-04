@@ -297,6 +297,16 @@
       "leftAt": null,
       "startDate": "1405-07-12",
       "inactivePeriods": []
+    },
+    {
+      "id": "emutyq0ojcxw1m",
+      "name": "فیاض تقلبی",
+      "role": "پولیش کار",
+      "active": true,
+      "createdAt": "1405-07-12",
+      "leftAt": null,
+      "startDate": "1405-07-12",
+      "inactivePeriods": []
     }
   ],
   "records": {
@@ -1083,6 +1093,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-10-04T15:15:20.179Z",
+      "text": "افزودن نیرو: فیاض تقلبی (استخدام جدید از امروز)"
+    },
     {
       "ts": "2026-10-04T15:14:46.572Z",
       "text": "اخراج نیرو: امید حمیدی"
