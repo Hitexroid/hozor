@@ -257,11 +257,16 @@
       "id": "emudmc8i8v31ax",
       "name": "امید حمیدی",
       "role": "وسط کار",
-      "active": true,
+      "active": false,
       "createdAt": "1405-07-01",
-      "leftAt": null,
+      "leftAt": "1405-07-12",
       "startDate": "1405-07-01",
-      "inactivePeriods": []
+      "inactivePeriods": [
+        {
+          "from": "1405-07-12",
+          "to": null
+        }
+      ]
     },
     {
       "id": "emul064pji6dyd",
@@ -1078,6 +1083,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-10-04T15:14:46.572Z",
+      "text": "اخراج نیرو: امید حمیدی"
+    },
     {
       "ts": "2026-10-04T15:14:38.576Z",
       "text": "افزودن نیرو: محمد کرکی (استخدام جدید از امروز)"
