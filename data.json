@@ -282,6 +282,16 @@
       "leftAt": null,
       "startDate": null,
       "inactivePeriods": []
+    },
+    {
+      "id": "emutyp4kvh6xfm",
+      "name": "محمد کرکی",
+      "role": "سفارشات و ارسال",
+      "active": true,
+      "createdAt": "1405-07-12",
+      "leftAt": null,
+      "startDate": "1405-07-12",
+      "inactivePeriods": []
     }
   ],
   "records": {
@@ -1068,6 +1078,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-10-04T15:14:38.576Z",
+      "text": "افزودن نیرو: محمد کرکی (استخدام جدید از امروز)"
+    },
     {
       "ts": "2026-10-04T10:23:39.140Z",
       "text": "اخراج نیرو: خانم محمدی"
