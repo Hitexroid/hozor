@@ -197,11 +197,16 @@
       "id": "emtek53lnx2lm4",
       "name": "امیرحسین اکبری",
       "role": "پولیش کار",
-      "active": true,
+      "active": false,
       "createdAt": "1405-06-07",
-      "leftAt": null,
+      "leftAt": "1405-07-12",
       "startDate": "1405-06-07",
-      "inactivePeriods": []
+      "inactivePeriods": [
+        {
+          "from": "1405-07-12",
+          "to": null
+        }
+      ]
     },
     {
       "id": "emtg8duhuywt1u",
@@ -1093,6 +1098,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-10-04T15:15:47.881Z",
+      "text": "اخراج نیرو: امیرحسین اکبری"
+    },
     {
       "ts": "2026-10-04T15:15:20.179Z",
       "text": "افزودن نیرو: فیاض تقلبی (استخدام جدید از امروز)"
