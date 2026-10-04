@@ -1025,6 +1025,13 @@
         "leave": true,
         "note": ""
       }
+    },
+    "emutyp4kvh6xfm": {
+      "1405-07-12": {
+        "in": "08:00",
+        "out": "18:40",
+        "note": ""
+      }
     }
   },
   "bonus": {
@@ -1099,10 +1106,15 @@
     "emtpu9i7alvmrp": {},
     "emu29gawax08eg": {},
     "emudmc8i8v31ax": {},
-    "emurxofide6hne": {}
+    "emurxofide6hne": {},
+    "emutyp4kvh6xfm": {}
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-10-04T15:17:06.781Z",
+      "text": "ثبت/ویرایش تردد محمد کرکی - ۱۲ مهر ۱۴۰۵"
+    },
     {
       "ts": "2026-10-04T15:16:06.921Z",
       "text": "ثبت/ویرایش تردد خانم سلطانی - ۱۲ مهر ۱۴۰۵"
