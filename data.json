@@ -297,11 +297,16 @@
       "id": "emutyp4kvh6xfm",
       "name": "محمد کرکی",
       "role": "سفارشات و ارسال",
-      "active": true,
+      "active": false,
       "createdAt": "1405-07-12",
-      "leftAt": null,
+      "leftAt": "1405-07-16",
       "startDate": "1405-07-12",
-      "inactivePeriods": []
+      "inactivePeriods": [
+        {
+          "from": "1405-07-16",
+          "to": null
+        }
+      ]
     },
     {
       "id": "emutyq0ojcxw1m",
@@ -1192,6 +1197,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-10-08T09:58:55.615Z",
+      "text": "اخراج نیرو: محمد کرکی"
+    },
     {
       "ts": "2026-10-08T09:58:42.717Z",
       "text": "ثبت/ویرایش تردد محمد کرکی - ۱۶ مهر ۱۴۰۵"
