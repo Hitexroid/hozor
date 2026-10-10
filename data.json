@@ -327,6 +327,16 @@
       "leftAt": null,
       "startDate": "1405-07-14",
       "inactivePeriods": []
+    },
+    {
+      "id": "emv1x623vm68yt",
+      "name": "سلیم شاه",
+      "role": "وسط کار",
+      "active": true,
+      "createdAt": "1405-07-18",
+      "leftAt": null,
+      "startDate": "1405-07-18",
+      "inactivePeriods": []
     }
   ],
   "records": {
@@ -1197,6 +1207,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-10-10T04:53:58.699Z",
+      "text": "افزودن نیرو: سلیم شاه (استخدام جدید از امروز)"
+    },
     {
       "ts": "2026-10-08T09:58:55.615Z",
       "text": "اخراج نیرو: محمد کرکی"
