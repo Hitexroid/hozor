@@ -164,10 +164,15 @@
     {
       "id": "ems2b4zfgmcqno",
       "name": "سعید مسائلی",
-      "active": true,
+      "active": false,
       "createdAt": "1405-05-05",
-      "leftAt": null,
-      "inactivePeriods": [],
+      "leftAt": "1405-07-18",
+      "inactivePeriods": [
+        {
+          "from": "1405-07-18",
+          "to": null
+        }
+      ],
       "role": "تزریق کار"
     },
     {
@@ -1221,6 +1226,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-10-10T13:27:23.300Z",
+      "text": "اخراج نیرو: سعید مسائلی"
+    },
     {
       "ts": "2026-10-10T13:27:04.300Z",
       "text": "ثبت/ویرایش تردد سعید مسائلی - ۱۸ مهر ۱۴۰۵"
