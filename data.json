@@ -342,6 +342,16 @@
       "leftAt": null,
       "startDate": "1405-07-18",
       "inactivePeriods": []
+    },
+    {
+      "id": "emv415o0v1z8nm",
+      "name": "دوست عرفان",
+      "role": "پولیش کار",
+      "active": true,
+      "createdAt": "1405-07-19",
+      "leftAt": null,
+      "startDate": "1405-07-19",
+      "inactivePeriods": []
     }
   ],
   "records": {
@@ -1246,6 +1256,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-10-11T16:21:11.263Z",
+      "text": "افزودن نیرو: دوست عرفان (استخدام جدید از امروز)"
+    },
     {
       "ts": "2026-10-11T13:24:16.470Z",
       "text": "ثبت/ویرایش تردد عباس مورخ - ۱۹ مهر ۱۴۰۵"
