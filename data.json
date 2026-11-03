@@ -373,6 +373,16 @@
       "leftAt": null,
       "startDate": "1405-08-09",
       "inactivePeriods": []
+    },
+    {
+      "id": "emw0i25ev0pzn2",
+      "name": "علیرضا عبدی",
+      "role": "کمک نقاش",
+      "active": true,
+      "createdAt": "1405-08-12",
+      "leftAt": null,
+      "startDate": "1405-08-12",
+      "inactivePeriods": []
     }
   ],
   "records": {
@@ -1531,6 +1541,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-11-03T09:42:58.279Z",
+      "text": "افزودن نیرو: علیرضا عبدی (استخدام جدید از امروز)"
+    },
     {
       "ts": "2026-11-03T09:42:46.667Z",
       "text": "حذف کامل نیرو: علیرضا عبدی"
