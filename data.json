@@ -373,6 +373,16 @@
       "leftAt": null,
       "startDate": "1405-08-09",
       "inactivePeriods": []
+    },
+    {
+      "id": "emw0i1hg2cfo9p",
+      "name": "علیرضا عبدی",
+      "role": "کمک نقاش",
+      "active": true,
+      "createdAt": "1405-08-12",
+      "leftAt": null,
+      "startDate": null,
+      "inactivePeriods": []
     }
   ],
   "records": {
@@ -1531,6 +1541,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-11-03T09:42:27.218Z",
+      "text": "افزودن نیرو: علیرضا عبدی"
+    },
     {
       "ts": "2026-11-03T04:45:27.577Z",
       "text": "ثبت/ویرایش تردد شیرآقا - ۱۱ آبان ۱۴۰۵"
