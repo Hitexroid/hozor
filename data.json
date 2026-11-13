@@ -383,16 +383,6 @@
       "leftAt": null,
       "startDate": "1405-08-12",
       "inactivePeriods": []
-    },
-    {
-      "id": "emwekcjhzy3i9q",
-      "name": "مهدی موسوی",
-      "role": "وسط کار",
-      "active": true,
-      "createdAt": "1405-08-22",
-      "leftAt": null,
-      "startDate": "1405-08-22",
-      "inactivePeriods": []
     }
   ],
   "records": {
@@ -1643,6 +1633,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-11-13T06:44:39.556Z",
+      "text": "حذف کامل نیرو: مهدی موسوی"
+    },
     {
       "ts": "2026-11-13T05:55:48.791Z",
       "text": "افزودن نیرو: مهدی موسوی (استخدام جدید از امروز)"
