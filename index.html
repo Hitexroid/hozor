@@ -562,6 +562,57 @@ table.rep tr.future td{color:var(--muted2)}
   font-weight:700;color:var(--text);opacity:.9;
 }
 
+
+/* ===== wheel date picker ===== */
+.wheel-wrap{position:relative;display:flex;gap:6px;height:200px;background:var(--bg3);border:1px solid var(--border2);border-radius:18px;overflow:hidden;padding:0 8px;direction:rtl}
+.wheel-band{position:absolute;left:8px;right:8px;top:80px;height:40px;border-radius:12px;background:var(--accent-light);border:1px solid var(--border2);pointer-events:none}
+.wheel-wrap::before,.wheel-wrap::after{content:'';position:absolute;left:0;right:0;height:70px;z-index:2;pointer-events:none}
+.wheel-wrap::before{top:0;background:linear-gradient(var(--bg3),rgba(248,247,252,0))}
+.wheel-wrap::after{bottom:0;background:linear-gradient(rgba(248,247,252,0),var(--bg3))}
+.wheel-col{position:relative;z-index:1;flex:1;height:100%;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:80px 0;box-sizing:border-box}
+.wheel-col::-webkit-scrollbar{display:none}
+.wheel-item{height:40px;line-height:40px;text-align:center;scroll-snap-align:center;font-size:15px;font-weight:600;color:var(--muted2);cursor:pointer;user-select:none;-webkit-user-select:none}
+.wheel-item.sel{color:var(--accent-d);font-weight:800;font-size:17px}
+
+/* ===== quick overtime chips ===== */
+.ot-chips{display:flex;gap:8px;flex-wrap:wrap}
+.ot-chip{padding:10px 16px;border-radius:14px;border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-weight:700;font-size:13px;transition:all .2s}
+.ot-chip:hover{border-color:var(--accent);background:var(--accent-light)}
+.ot-chip.on{background:linear-gradient(135deg,var(--accent),var(--accent-d));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(139,92,246,.3)}
+
+/* ===== stat cards (report + meal) ===== */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.stat{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:14px 8px;text-align:center}
+.stat .num{font-size:24px;font-weight:800;line-height:1.3}
+.stat .lbl2{font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
+.stat.leave .num{color:var(--accent)}
+.stat.ot .num{color:var(--good)}
+.stat.def .num{color:var(--bad)}
+
+/* ===== full-page report ===== */
+.report-page{min-height:100vh}
+.report-page .table-wrap{max-height:none;overflow:visible}
+.report-page table.rep{table-layout:auto}
+.report-page table.rep th{top:0;z-index:5}
+.report-page table.rep td.note-cell{text-align:right;word-break:break-word}
+.report-page table.rep td.nw,.report-page table.rep th{white-space:nowrap}
+.report-page table.rep tfoot td{background:var(--bg3);border-top:2px solid var(--border);font-weight:700}
+
+/* ===== meal modal ===== */
+.sw{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;font-weight:600;font-size:14px;cursor:pointer}
+.sw input{width:20px;height:20px;accent-color:var(--accent)}
+.meal-preview{white-space:pre-wrap;background:#fff;border:1px dashed var(--border2);border-radius:14px;padding:14px;line-height:2;font-size:14px;margin:14px 0 8px}
+
+@media (max-width: 600px) {
+  .report-page .wrap{padding:12px 8px}
+  .report-page .card{padding:12px}
+  .report-page table.rep{font-size:11.5px}
+  .report-page table.rep th,.report-page table.rep td{padding:8px 3px}
+  .stat .num{font-size:20px}
+  .stat .lbl2{font-size:11px}
+  .mini-edit{width:28px;height:28px}
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .wrap { padding: 16px 12px; }
@@ -576,7 +627,7 @@ table.rep tr.future td{color:var(--muted2)}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap" id="mainView">
 
   <div class="topbar">
     <div class="brand">
@@ -614,8 +665,9 @@ table.rep tr.future td{color:var(--muted2)}
     <h2>نیروها <span class="badge" id="empCountBadge">۰ نیرو</span></h2>
     <div class="emp-grid" id="empList"></div>
     <span class="toggle-link" id="toggleInactive">نمایش نیروهای اخراجی</span>
-    <div class="add-row">
-      <button class="btn" id="addEmpBtn" style="width:100%">+ افزودن نیروی جدید</button>
+    <div class="add-row" style="flex-wrap:wrap">
+      <button class="btn" id="addEmpBtn" style="flex:1;min-width:150px">+ افزودن نیروی جدید</button>
+      <button class="btn secondary" id="mealBtn" style="flex:1;min-width:150px">🍽 ارسال آمار غذا</button>
     </div>
   </div>
 
@@ -770,6 +822,17 @@ table.rep tr.future td{color:var(--muted2)}
       <input id="editOvertime" type="number" step="0.25" placeholder="0">
     </div>
 
+    <div id="quickOtWrap" class="field">
+      <label>اضافه‌کاری سریع (به اضافه‌کاری قبلی همین روز اضافه می‌شود)</label>
+      <div class="ot-chips" id="otChips">
+        <button type="button" class="ot-chip" data-h="0.5">+۰٫۵ ساعت</button>
+        <button type="button" class="ot-chip" data-h="1">+۱ ساعت</button>
+        <button type="button" class="ot-chip" data-h="2">+۲ ساعت</button>
+        <button type="button" class="ot-chip" data-h="3">+۳ ساعت</button>
+      </div>
+      <div class="hint" id="otChipSum" style="margin-top:8px"></div>
+    </div>
+
     <div class="field"><label>توضیحات</label><textarea id="editNote" rows="2" placeholder="توضیح اضافه (اختیاری)"></textarea></div>
 
     <div class="modal-actions">
@@ -791,37 +854,49 @@ table.rep tr.future td{color:var(--muted2)}
   </div>
 </div>
 
-<!-- monthly report modal -->
-<div class="overlay" id="reportOverlay">
-  <div class="modal" style="max-width:940px">
-    <div class="modal-head">
-      <h3 id="reportTitle">گزارش ماهانه</h3>
-      <div class="close-x" data-close="reportOverlay">✕</div>
-    </div>
-
-    <div class="report-toolbar">
-      <div class="month-switch" id="reportMonthSwitch"></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn secondary" id="repExportXlsx">خروجی اکسل</button>
-        <button class="btn secondary" id="repExportPdf">خروجی PDF</button>
+<!-- monthly report: full page -->
+<div id="reportPage" class="report-page" style="display:none">
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <span class="dot"></span>
+        <div>
+          <h1 id="reportTitle">گزارش ماهانه</h1>
+          <small id="reportSub">—</small>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn secondary" id="reportBackBtn" type="button">→ بازگشت به صفحه اصلی</button>
       </div>
     </div>
 
-    <div class="bp-box" id="bpBox"></div>
+    <div class="card">
+      <div class="report-toolbar">
+        <div class="month-switch" id="reportMonthSwitch"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn secondary" id="repExportXlsx">خروجی اکسل</button>
+          <button class="btn secondary" id="repExportPdf">خروجی PDF</button>
+        </div>
+      </div>
 
-    <div class="table-wrap">
-      <table class="rep" id="reportTable">
-        <thead><tr>
-          <th>روز</th><th>روز هفته</th><th>ورود</th><th>خروج</th><th>توضیحات</th><th>کسری/اضافه‌کار</th><th></th>
-        </tr></thead>
-        <tbody id="reportBody"></tbody>
-        <tfoot><tr>
-          <td colspan="5" style="text-align:left;font-weight:700">جمع کل اضافه‌کار این ماه</td>
-          <td id="reportSum" style="font-weight:800"></td><td></td>
-        </tr></tfoot>
-      </table>
+      <div class="stat-grid" id="repStats"></div>
+
+      <div class="bp-box" id="bpBox"></div>
+
+      <div class="table-wrap">
+        <table class="rep" id="reportTable">
+          <thead><tr>
+            <th>روز</th><th>روز هفته</th><th>ورود</th><th>خروج</th><th>توضیحات</th><th>کسری/اضافه‌کار</th><th></th>
+          </tr></thead>
+          <tbody id="reportBody"></tbody>
+          <tfoot>
+            <tr><td colspan="5" style="text-align:left">تعداد روزهای مرخصی</td><td id="repLeaveSum"></td><td></td></tr>
+            <tr><td colspan="5" style="text-align:left">مجموع ساعات اضافه‌کاری</td><td id="reportSum"></td><td></td></tr>
+            <tr><td colspan="5" style="text-align:left">مجموع ساعات کسری کار</td><td id="repDefSum"></td><td></td></tr>
+          </tfoot>
+        </table>
+      </div>
     </div>
-
   </div>
 </div>
 
@@ -835,13 +910,38 @@ table.rep tr.future td{color:var(--muted2)}
     <div class="field"><label>نام نیرو</label><input type="text" id="addEmpName" placeholder="نام نیروی جدید"></div>
     <div class="field"><label>سمت</label><select id="addEmpRole"></select></div>
     <div class="chk">
-      <input type="checkbox" id="addEmpIsNew">
-      <label for="addEmpIsNew" style="margin:0">این نیرو تازه استخدام شده و از امروز شروع به کار کرده است</label>
+      <input type="checkbox" id="addEmpOld">
+      <label for="addEmpOld" style="margin:0">نیروی قدیمی است؛ تاریخ شروع مشخص نشود (از ابتدا محاسبه شود)</label>
     </div>
-    <div class="hint" id="addEmpNewHint" style="margin-bottom:6px">در صورت فعال بودن این گزینه، برای روزهای قبل از امروز در همین ماه، هیچ ساعت کاری (پیش‌فرض یا دستی) برای این نیرو محاسبه نخواهد شد و صفر ثبت می‌شود.</div>
+    <div class="field" id="addEmpDateWrap">
+      <label>تاریخ شروع به کار (شمسی)</label>
+      <div id="addEmpWheel"></div>
+      <div class="hint" id="addEmpDateText" style="margin-top:8px"></div>
+    </div>
+    <div class="hint" style="margin-bottom:6px">روزهای قبل از تاریخ شروع، جزو ساعات کاری این نیرو محاسبه نمی‌شوند؛ از خود تاریخ شروع به بعد می‌توانید تردد را ثبت و ویرایش کنید.</div>
     <div class="modal-actions">
       <button class="btn secondary" data-close="addEmpOverlay">انصراف</button>
       <button class="btn" id="saveAddEmpBtn">افزودن نیرو</button>
+    </div>
+  </div>
+</div>
+
+<!-- meal stats modal -->
+<div class="overlay" id="mealOverlay">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-head">
+      <h3>ارسال آمار غذا</h3>
+      <div class="close-x" data-close="mealOverlay">✕</div>
+    </div>
+    <div class="stat-grid" id="mealStats"></div>
+    <div class="hint" id="mealLeaveNames" style="margin-bottom:12px"></div>
+    <label class="sw"><span>راننده</span><input type="checkbox" id="mealDriver"></label>
+    <label class="sw"><span>آقای دهقان (مدیر)</span><input type="checkbox" id="mealDehghan"></label>
+    <div class="meal-preview" id="mealPreview"></div>
+    <div class="hint" id="mealHint">دکمه «ارسال پیامک» فقط صفحه پیامک گوشی را با متن آماده باز می‌کند؛ مخاطب را خودتان انتخاب می‌کنید و ارسال هم با تأیید شماست.</div>
+    <div class="modal-actions">
+      <button class="btn secondary" id="mealCopyBtn" type="button">کپی متن</button>
+      <button class="btn" id="mealSmsBtn" type="button">ارسال پیامک</button>
     </div>
   </div>
 </div>
@@ -855,6 +955,14 @@ table.rep tr.future td{color:var(--muted2)}
     </div>
     <div class="field"><label>نام نیرو</label><input type="text" id="empEditName"></div>
     <div class="field"><label>سمت</label><select id="empEditRole"></select></div>
+    <div class="chk">
+      <input type="checkbox" id="empEditNoStart">
+      <label for="empEditNoStart" style="margin:0">بدون تاریخ شروع (از ابتدا محاسبه شود)</label>
+    </div>
+    <div class="field" id="empEditDateWrap">
+      <label>تاریخ شروع به کار (شمسی)</label>
+      <div id="empEditWheel"></div>
+    </div>
     <div class="modal-actions">
       <button class="btn secondary" data-close="empEditOverlay">انصراف</button>
       <button class="btn" id="saveEmpEditBtn">ذخیره</button>
@@ -867,7 +975,7 @@ table.rep tr.future td{color:var(--muted2)}
   <div class="modal" style="max-width:480px">
     <div class="modal-head">
       <h3 id="empActionTitle">حذف نیرو</h3>
-      <div class="close-x" data-close="empActionOverlay"></div>
+      <div class="close-x" data-close="empActionOverlay">✕</div>
     </div>
     <div class="choice-row">
       <button class="choice-card fire" id="empActionFireBtn">
@@ -1352,14 +1460,28 @@ function getDayInfo(empId, jy, jm, jd){
 
 function monthSummary(empId, jy, jm){
   const len = jMonthLength(jy,jm);
-  let sum=0;
+  let sum=0, leaveCount=0, overtime=0, deficit=0;
   const rows=[];
   for(let d=1; d<=len; d++){
     const info=getDayInfo(empId,jy,jm,d);
-    if(info.diff!=null) sum+=info.diff;
+    if(info.leave) leaveCount++;
+    if(info.diff!=null){
+      sum+=info.diff;
+      if(info.diff>0) overtime+=info.diff;
+      else if(info.diff<0) deficit+=-info.diff;
+    }
     rows.push(info);
   }
-  return { rows, sum };
+  const r2=v=>Math.round(v*100)/100;
+  return { rows, sum, leaveCount, overtime:r2(overtime), deficit:r2(deficit) };
+}
+function fmtHoursNum(h){
+  const r=Math.round((h||0)*100)/100;
+  return faDigits(String(r)).replace('.','٫');
+}
+function hasReportableData(empId, jy, jm){
+  const {rows}=monthSummary(empId,jy,jm);
+  return rows.some(r=> r.type!=='removed' && r.type!=='not-started');
 }
 
 /* ============================================================
@@ -1433,20 +1555,118 @@ function findEmployeeByName(name, activeOnly){
   return DB.employees.find(e => e.name.trim().toLowerCase()===norm && (!activeOnly || e.active!==false));
 }
 
+/* ---- wheel date picker (Jalali) ---- */
+const WHEEL_H=40;
+function makeWheel(containerId){
+  const root=document.getElementById(containerId);
+  root.classList.add('wheel-wrap');
+  root.innerHTML='<div class="wheel-band"></div><div class="wheel-col" data-k="d"></div><div class="wheel-col" data-k="m"></div><div class="wheel-col" data-k="y"></div>';
+  const colD=root.querySelector('[data-k="d"]'), colM=root.querySelector('[data-k="m"]'), colY=root.querySelector('[data-k="y"]');
+  const years=[]; for(let y=today.jy-40; y<=today.jy+3; y++) years.push(y);
+  const st={ jy:today.jy, jm:today.jm, jd:today.jd };
+  function fill(col, labels){ col.innerHTML=labels.map((t,i)=>'<div class="wheel-item" data-i="'+i+'">'+t+'</div>').join(''); }
+  function mark(col, idx){ const it=col.children; for(let i=0;i<it.length;i++) it[i].classList.toggle('sel', i===idx); }
+  function idxOf(col){ const n=col.children.length; return Math.max(0, Math.min(n-1, Math.round(col.scrollTop/WHEEL_H))); }
+  fill(colM, MONTH_NAMES);
+  fill(colY, years.map(faDigits));
+  function fillDays(){
+    const len=jMonthLength(st.jy,st.jm);
+    if(st.jd>len) st.jd=len;
+    fill(colD, Array.from({length:len},(_,i)=>faDigits(i+1)));
+  }
+  function place(){
+    colD.scrollTop=(st.jd-1)*WHEEL_H;
+    colM.scrollTop=(st.jm-1)*WHEEL_H;
+    colY.scrollTop=Math.max(0,years.indexOf(st.jy))*WHEEL_H;
+    mark(colD,st.jd-1); mark(colM,st.jm-1); mark(colY,Math.max(0,years.indexOf(st.jy)));
+  }
+  function refreshDays(){
+    const len=jMonthLength(st.jy,st.jm);
+    if(len!==colD.children.length){
+      if(st.jd>len) st.jd=len;
+      fillDays();
+      colD.scrollTop=(st.jd-1)*WHEEL_H;
+      mark(colD,st.jd-1);
+    }
+  }
+  function commit(col){
+    const i=idxOf(col), k=col.dataset.k;
+    if(k==='d') st.jd=i+1;
+    else if(k==='m'){ st.jm=i+1; refreshDays(); }
+    else { st.jy=years[i]; refreshDays(); }
+    root.dispatchEvent(new Event('wheelchange'));
+  }
+  [colD,colM,colY].forEach(col=>{
+    col.addEventListener('scroll', ()=>{
+      mark(col, idxOf(col));
+      clearTimeout(col._t);
+      col._t=setTimeout(()=>commit(col), 110);
+    }, { passive:true });
+    col.addEventListener('click', (e)=>{
+      const it=e.target.closest('.wheel-item'); if(!it) return;
+      col.scrollTo({ top:(parseInt(it.dataset.i,10))*WHEEL_H, behavior:'smooth' });
+    });
+  });
+  fillDays();
+  place();
+  return {
+    set(jy,jm,jd){
+      if(years.indexOf(jy)<0) jy = jy<years[0]? years[0] : years[years.length-1];
+      st.jy=jy; st.jm=jm; st.jd=jd;
+      fillDays(); place();
+      requestAnimationFrame(place);
+      setTimeout(place, 60);
+    },
+    get(){
+      const jy=years[idxOf(colY)], jm=idxOf(colM)+1;
+      const len=jMonthLength(jy,jm);
+      const jd=Math.min(len, idxOf(colD)+1);
+      return { jy, jm, jd };
+    },
+    el: root
+  };
+}
+function jDateText(d){
+  return WEEKDAYS[iranWeekdayIdx(d.jy,d.jm,d.jd)]+' '+faDigits(d.jd)+' '+MONTH_NAMES[d.jm-1]+' '+faDigits(d.jy);
+}
+function keyToParts(key){
+  const p=String(key||'').split('-').map(Number);
+  return (p.length===3 && p.every(n=>!isNaN(n))) ? { jy:p[0], jm:p[1], jd:p[2] } : null;
+}
+function addDaysKey(key, n){
+  const p=keyToParts(key); if(!p) return key;
+  const r=d2j(j2d(p.jy,p.jm,p.jd)+n);
+  return dateKey(r.jy,r.jm,r.jd);
+}
+
 /* ---- add employee modal ---- */
+const addEmpWheel = makeWheel('addEmpWheel');
+function updateAddEmpDateText(){
+  document.getElementById('addEmpDateText').textContent = 'تاریخ انتخاب‌شده: '+jDateText(addEmpWheel.get());
+}
+addEmpWheel.el.addEventListener('wheelchange', updateAddEmpDateText);
+document.getElementById('addEmpOld').addEventListener('change', ()=>{
+  const old=document.getElementById('addEmpOld').checked;
+  document.getElementById('addEmpDateWrap').style.display = old? 'none':'block';
+  if(!old){ const t=getTodayJalali(); addEmpWheel.set(t.jy,t.jm,t.jd); setTimeout(updateAddEmpDateText,80); }
+});
 function openAddEmpModal(){
   document.getElementById('addEmpName').value='';
   document.getElementById('addEmpRole').innerHTML = roleOptionsHtml(true, null);
-  document.getElementById('addEmpIsNew').checked=false;
+  document.getElementById('addEmpOld').checked=false;
+  document.getElementById('addEmpDateWrap').style.display='block';
   closeAllOverlays();
   document.getElementById('addEmpOverlay').classList.add('show');
+  const t=getTodayJalali();
+  addEmpWheel.set(t.jy,t.jm,t.jd);
+  setTimeout(updateAddEmpDateText,80);
 }
 document.getElementById('addEmpBtn').onclick=openAddEmpModal;
 
 document.getElementById('saveAddEmpBtn').onclick=()=>{
   const name=document.getElementById('addEmpName').value.trim();
   const role=document.getElementById('addEmpRole').value;
-  const isNew=document.getElementById('addEmpIsNew').checked;
+  const isOld=document.getElementById('addEmpOld').checked;
   if(!name){ alert('نام نیرو را وارد کنید.'); return; }
 
   const activeMatch = findEmployeeByName(name, true);
@@ -1455,30 +1675,138 @@ document.getElementById('saveAddEmpBtn').onclick=()=>{
     return;
   }
 
-  const todayKey = dateKey(today.jy,today.jm,today.jd);
+  const t=getTodayJalali();
+  const todayKey = dateKey(t.jy,t.jm,t.jd);
+  const pick = isOld ? null : addEmpWheel.get();
+  const pickKey = pick ? dateKey(pick.jy,pick.jm,pick.jd) : null;
+
   const inactiveMatch = findEmployeeByName(name, false); // any match not caught above means fired/inactive
   if(inactiveMatch){
-    if(!confirm('نیرویی با نام «'+inactiveMatch.name+'» قبلاً اخراج شده بود. آیا می‌خواهید همان نیرو را بازگردانید؟')) return;
+    const rehireKey = pickKey || todayKey;
+    if(!confirm('نیرویی با نام «'+inactiveMatch.name+'» قبلاً اخراج شده بود. آیا می‌خواهید همان نیرو را با تاریخ شروع همکاری مجدد '+faDigits(rehireKey)+' بازگردانید؟ سوابق قبلی او حفظ می‌شود.')) return;
     if(!inactiveMatch.inactivePeriods) inactiveMatch.inactivePeriods=[];
     const openPeriod = inactiveMatch.inactivePeriods.find(p=>p.to===null);
-    if(openPeriod) openPeriod.to = todayKey;
+    if(openPeriod){
+      const lastOff = addDaysKey(rehireKey, -1);
+      if(lastOff < openPeriod.from){
+        inactiveMatch.inactivePeriods = inactiveMatch.inactivePeriods.filter(p=>p!==openPeriod);
+      } else {
+        openPeriod.to = lastOff;
+      }
+    }
     inactiveMatch.active = true;
     inactiveMatch.leftAt = null;
     inactiveMatch.role = role;
-    if(isNew) inactiveMatch.startDate = todayKey;
+    if(!inactiveMatch.rehires) inactiveMatch.rehires=[];
+    inactiveMatch.rehires.push({ date: rehireKey });
     closeOverlay('addEmpOverlay');
-    mutate('بازگرداندن نیرو: '+inactiveMatch.name);
+    mutate('بازگرداندن نیرو: '+inactiveMatch.name+' (از تاریخ '+rehireKey+')');
     return;
   }
 
-  const emp={ id:uid(), name, role, active:true, createdAt: todayKey, leftAt:null, startDate: isNew? todayKey : null, inactivePeriods:[] };
+  const emp={ id:uid(), name, role, active:true, createdAt: todayKey, leftAt:null, startDate: pickKey, inactivePeriods:[] };
   DB.employees.push(emp);
   closeOverlay('addEmpOverlay');
-  mutate('افزودن نیرو: '+name+(isNew? ' (استخدام جدید از امروز)':''));
+  mutate('افزودن نیرو: '+name+(pickKey? (' (شروع به کار از '+pickKey+')') : ''));
 };
 
-/* ---- edit employee (name + role) modal ---- */
+/* ---- meal statistics (آمار غذا) ---- */
+function mealDateText(){ return jDateText(getTodayJalali()); }
+function mealCounts(){
+  const t=getTodayJalali();
+  let n=0, active=0; const leaveNames=[];
+  activeEmployees().forEach(e=>{
+    const info=getDayInfo(e.id,t.jy,t.jm,t.jd);
+    if(info.type==='removed' || info.type==='not-started') return;
+    active++;
+    if(info.leave){ leaveNames.push(e.name); return; }
+    n++;
+  });
+  return { active, leave:leaveNames.length, leaveNames, n };
+}
+function loadMealOpts(){
+  try{
+    const o=JSON.parse(localStorage.getItem('attendance_meal_opts')||'{}');
+    document.getElementById('mealDriver').checked=!!o.driver;
+    document.getElementById('mealDehghan').checked=!!o.dehghan;
+  }catch(e){}
+}
+function saveMealOpts(){
+  try{
+    localStorage.setItem('attendance_meal_opts', JSON.stringify({
+      driver: document.getElementById('mealDriver').checked,
+      dehghan: document.getElementById('mealDehghan').checked
+    }));
+  }catch(e){}
+}
+function buildMealText(){
+  const c=mealCounts();
+  const driver=document.getElementById('mealDriver').checked;
+  const dehghan=document.getElementById('mealDehghan').checked;
+  const parts=[faDigits(c.n)+' نفر'];
+  if(driver) parts.push('راننده');
+  if(dehghan) parts.push('آقای دهقان');
+  const total=c.n+(driver?1:0)+(dehghan?1:0);
+  return 'سلام، وقت بخیر\n\nامروز تاریخ '+mealDateText()+'\n\n'+parts.join(' + ')+' = جمعاً '+faDigits(total)+' نفر';
+}
+function renderMeal(){
+  const c=mealCounts();
+  document.getElementById('mealStats').innerHTML =
+    '<div class="stat"><div class="num">'+faDigits(c.active)+'</div><div class="lbl2">نیروی فعال امروز</div></div>'+
+    '<div class="stat leave"><div class="num">'+faDigits(c.leave)+'</div><div class="lbl2">مرخصی امروز</div></div>'+
+    '<div class="stat ot"><div class="num">'+faDigits(c.n)+'</div><div class="lbl2">غذای نیروها</div></div>';
+  document.getElementById('mealLeaveNames').textContent = c.leave? ('مرخصی: '+c.leaveNames.join('، ')) : '';
+  document.getElementById('mealPreview').textContent = buildMealText();
+}
+document.getElementById('mealBtn').onclick=()=>{
+  closeAllOverlays();
+  loadMealOpts();
+  renderMeal();
+  document.getElementById('mealHint').textContent='دکمه «ارسال پیامک» فقط صفحه پیامک گوشی را با متن آماده باز می‌کند؛ مخاطب را خودتان انتخاب می‌کنید و ارسال هم با تأیید شماست.';
+  document.getElementById('mealOverlay').classList.add('show');
+};
+['mealDriver','mealDehghan'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', ()=>{ saveMealOpts(); renderMeal(); });
+});
+document.getElementById('mealSmsBtn').onclick=()=>{
+  const text=buildMealText();
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  const url='sms:'+(isIOS?'&':'?')+'body='+encodeURIComponent(text);
+  document.getElementById('mealHint').textContent='اگر صفحه پیامک باز نشد، از دکمه «کپی متن» استفاده کنید و متن را در پیام‌رسان خود بچسبانید.';
+  window.location.href=url;
+};
+document.getElementById('mealCopyBtn').onclick=async ()=>{
+  const text=buildMealText();
+  let ok=false;
+  try{
+    if(navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(text); ok=true; }
+  }catch(e){}
+  if(!ok){
+    try{
+      const ta=document.createElement('textarea');
+      ta.value=text; ta.setAttribute('readonly','');
+      ta.style.position='fixed'; ta.style.top='-1000px';
+      document.body.appendChild(ta);
+      ta.select(); ta.setSelectionRange(0, ta.value.length);
+      ok=document.execCommand('copy');
+      ta.remove();
+    }catch(e){}
+  }
+  document.getElementById('mealHint').textContent = ok? 'متن کپی شد.' : 'کپی خودکار ممکن نشد؛ متن بالا را به‌صورت دستی انتخاب و کپی کنید.';
+};
+
+/* ---- edit employee (name + role + start date) modal ---- */
+const empEditWheel = makeWheel('empEditWheel');
 let empEditCtx={ empId:null };
+document.getElementById('empEditNoStart').addEventListener('change', ()=>{
+  const noStart=document.getElementById('empEditNoStart').checked;
+  document.getElementById('empEditDateWrap').style.display = noStart? 'none':'block';
+  if(!noStart){
+    const emp=DB.employees.find(e=>e.id===empEditCtx.empId);
+    const p = (emp && keyToParts(emp.startDate)) || getTodayJalali();
+    empEditWheel.set(p.jy,p.jm,p.jd);
+  }
+});
 function openEmpEditModal(id){
   const emp=DB.employees.find(e=>e.id===id); if(!emp) return;
   empEditCtx.empId=id;
@@ -1486,8 +1814,12 @@ function openEmpEditModal(id){
   const isManager = emp.role===MANAGER_ROLE;
   document.getElementById('empEditRole').innerHTML = roleOptionsHtml(!isManager, emp.role);
   document.getElementById('empEditRole').disabled = isManager;
+  const sp = keyToParts(emp.startDate);
+  document.getElementById('empEditNoStart').checked = !sp;
+  document.getElementById('empEditDateWrap').style.display = sp? 'block':'none';
   closeAllOverlays();
   document.getElementById('empEditOverlay').classList.add('show');
+  if(sp) empEditWheel.set(sp.jy,sp.jm,sp.jd);
 }
 document.getElementById('saveEmpEditBtn').onclick=()=>{
   const id=empEditCtx.empId;
@@ -1497,13 +1829,19 @@ document.getElementById('saveEmpEditBtn').onclick=()=>{
   if(!newName){ alert('نام نیرو نمی‌تواند خالی باشد.'); return; }
   const dup = DB.employees.find(e=> e.id!==id && e.active!==false && e.name.trim().toLowerCase()===newName.toLowerCase());
   if(dup){ alert('نیرویی با نام «'+dup.name+'» از قبل وجود دارد.'); return; }
-  const old=emp.name, oldRole=emp.role;
+  const old=emp.name, oldRole=emp.role, oldStart=emp.startDate||null;
+  const noStart=document.getElementById('empEditNoStart').checked;
+  let newStart = oldStart;
+  if(noStart) newStart=null;
+  else { const p=empEditWheel.get(); newStart=dateKey(p.jy,p.jm,p.jd); }
   emp.name=newName;
   emp.role=newRole;
+  emp.startDate=newStart;
   closeOverlay('empEditOverlay');
   let logText='ویرایش نیرو: '+old;
   if(old!==newName) logText+=' → '+newName;
   if(oldRole!==newRole) logText+=' (سمت: '+(oldRole||'—')+' → '+(newRole||'—')+')';
+  if(oldStart!==newStart) logText+=' (تاریخ شروع: '+(oldStart||'—')+' → '+(newStart||'—')+')';
   mutate(logText);
 };
 
@@ -1585,8 +1923,12 @@ function fillMonthDaySelects(jy, sel_m, sel_d){
 function closeAllOverlays(){
   document.querySelectorAll('.overlay.show').forEach(o=>o.classList.remove('show'));
 }
+let editSaveLock=false;
+let quickOt=new Set();
 function openEditModal(empId, jy, jm, jd){
-  editCtx.fromReport = document.getElementById('reportOverlay').classList.contains('show');
+  editCtx.fromReport = reportOpen();
+  editSaveLock=false;
+  quickOt.clear();
   closeAllOverlays();
   editCtx.empId=empId;
   const emp=DB.employees.find(e=>e.id===empId);
@@ -1606,7 +1948,63 @@ function curEditDate(){
   return { jy: editYearValue(), jm: parseInt(document.getElementById('editMonth').value,10), jd: parseInt(document.getElementById('editDay').value,10) };
 }
 
+/* ---- quick overtime chips ---- */
+function quickOtSum(){ let t=0; quickOt.forEach(h=>t+=parseFloat(h)); return Math.round(t*100)/100; }
+function clearQuickOt(){
+  quickOt.clear();
+  document.querySelectorAll('.ot-chip').forEach(b=>b.classList.remove('on'));
+  updateQuickOtSum();
+}
+function getEditBaseOut(){
+  const {jy,jm,jd}=curEditDate();
+  const v=document.getElementById('editOut').value.trim();
+  if(v) return v;
+  const info=getDayInfo(editCtx.empId,jy,jm,jd);
+  const ws=DB.settings||{workIn:'08:00',workOut:'18:00',thuOut:'14:00'};
+  return info.out || (iranWeekdayIdx(jy,jm,jd)===5? ws.thuOut : ws.workOut);
+}
+function updateQuickOtSum(){
+  const el=document.getElementById('otChipSum'); if(!el) return;
+  const s=quickOtSum();
+  if(!s){ el.textContent='هر گزینه به اضافه‌کاری قبلی همین روز اضافه می‌شود (چند گزینه را می‌توانید هم‌زمان انتخاب کنید).'; return; }
+  const {jy,jm,jd}=curEditDate();
+  if(iranWeekdayIdx(jy,jm,jd)===6){
+    const base=parseFloat(faToEn(document.getElementById('editOvertime').value))||0;
+    el.textContent='اضافه‌کاری فعلی '+fmtHoursNum(base)+' + '+fmtHoursNum(s)+' = '+fmtHoursNum(base+s)+' ساعت';
+  } else {
+    el.textContent='مجموع انتخاب‌شده: +'+fmtHoursNum(s)+' ساعت — ساعت خروج جدید: '+faDigits(addHoursToTime(getEditBaseOut(), s));
+  }
+}
+function updateQuickOtVisibility(){
+  const wrap=document.getElementById('quickOtWrap'); if(!wrap) return;
+  const {jy,jm,jd}=curEditDate();
+  if(!jy||!jm||!jd){ wrap.style.display='none'; return; }
+  const key=dateKey(jy,jm,jd);
+  const emp=DB.employees.find(e=>e.id===editCtx.empId);
+  const blocked = isInInactivePeriod(emp,key) || (emp && emp.startDate && key<emp.startDate);
+  const isFriday = iranWeekdayIdx(jy,jm,jd)===6;
+  const holiday = !!DB.holidays[key];
+  const leave = !isFriday && document.getElementById('editLeave').checked;
+  const show = !blocked && !holiday && !leave;
+  wrap.style.display = show? 'block':'none';
+  if(!show) clearQuickOt(); else updateQuickOtSum();
+}
+document.querySelectorAll('.ot-chip').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    const h=b.dataset.h;
+    if(quickOt.has(h)){ quickOt.delete(h); b.classList.remove('on'); }
+    else { quickOt.add(h); b.classList.add('on'); }
+    updateQuickOtSum();
+  });
+});
+['editOut','editOvertime'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', updateQuickOtSum);
+});
+
 function refreshEditFieldsForDate(){
+  try{ refreshEditFieldsForDateCore(); } finally { updateQuickOtVisibility(); }
+}
+function refreshEditFieldsForDateCore(){
   const {jy,jm,jd}=curEditDate();
   const key=dateKey(jy,jm,jd);
   const dIdx=iranWeekdayIdx(jy,jm,jd);
@@ -1644,9 +2042,12 @@ function refreshEditFieldsForDate(){
 function refreshLeaveVisibility(){
   const leave=document.getElementById('editLeave').checked;
   document.getElementById('normalFields').style.display = leave? 'none':'flex';
+  updateQuickOtVisibility();
 }
 
 function loadDayIntoForm(){
+  quickOt.clear();
+  document.querySelectorAll('.ot-chip').forEach(b=>b.classList.remove('on'));
   const {jy,jm,jd}=curEditDate();
   const info=getDayInfo(editCtx.empId, jy, jm, jd);
   document.getElementById('editNote').value = info.note||'';
@@ -1661,6 +2062,8 @@ function loadDayIntoForm(){
 }
 
 document.getElementById('saveDayBtn').onclick=()=>{
+  if(editSaveLock) return;
+  editSaveLock=true; setTimeout(()=>{ editSaveLock=false; }, 800);
   const {jy,jm,jd}=curEditDate();
   const key=dateKey(jy,jm,jd);
   const empId=editCtx.empId;
@@ -1674,7 +2077,7 @@ document.getElementById('saveDayBtn').onclick=()=>{
   const note=document.getElementById('editNote').value.trim();
 
   if(isFriday){
-    const ot=parseFloat(document.getElementById('editOvertime').value)||0;
+    const ot=Math.round(((parseFloat(document.getElementById('editOvertime').value)||0)+quickOtSum())*100)/100;
     DB.records[empId][key]={ overtime: ot, note };
   } else {
     const leave=document.getElementById('editLeave').checked;
@@ -1683,6 +2086,13 @@ document.getElementById('saveDayBtn').onclick=()=>{
     } else {
       let inT=document.getElementById('editIn').value.trim();
       let outT=document.getElementById('editOut').value.trim();
+      const addH=quickOtSum();
+      if(addH>0){
+        const infoNow=getDayInfo(empId,jy,jm,jd);
+        const ws0=DB.settings||{workIn:'08:00',workOut:'18:00',thuOut:'14:00'};
+        const baseOut = outT || infoNow.out || (isThursday?ws0.thuOut:ws0.workOut);
+        outT = addHoursToTime(baseOut, addH);
+      }
       const existing = DB.records[empId][key];
       const ws=DB.settings||{workIn:'08:00',workOut:'18:00',thuOut:'14:00'};
       if(inT && !outT){ outT = existing && existing.out ? existing.out : (isThursday?ws.thuOut:ws.workOut); }
@@ -1691,7 +2101,10 @@ document.getElementById('saveDayBtn').onclick=()=>{
       DB.records[empId][key]={ in:inT, out:outT, note };
     }
   }
-  mutate('ثبت/ویرایش تردد '+(emp?emp.name:'')+' - '+faDigits(jd)+' '+MONTH_NAMES[jm-1]+' '+faDigits(jy));
+  const qSum=quickOtSum();
+  mutate('ثبت/ویرایش تردد '+(emp?emp.name:'')+' - '+faDigits(jd)+' '+MONTH_NAMES[jm-1]+' '+faDigits(jy)+(qSum>0?(' (اضافه‌کاری سریع +'+fmtHoursNum(qSum)+' ساعت)'):''));
+  quickOt.clear();
+  document.querySelectorAll('.ot-chip').forEach(b=>b.classList.remove('on'));
   closeEditOverlay();
 };
 
@@ -1711,8 +2124,7 @@ function closeEditOverlay(){
   closeOverlay('editOverlay');
   if(editCtx.fromReport){
     editCtx.fromReport=false;
-    renderReport();
-    document.getElementById('reportOverlay').classList.add('show');
+    if(reportOpen()) renderReport();
   }
 }
 document.querySelectorAll('[data-close]').forEach(el=>{
@@ -1733,13 +2145,30 @@ document.querySelectorAll('.overlay').forEach(ov=>{
    MONTHLY REPORT MODAL
    ============================================================ */
 let reportCtx = { empId:null, jy: today.jy, jm: today.jm };
-
+let mainScroll = 0;
+function reportOpen(){ return document.getElementById('reportPage').style.display!=='none'; }
 function openReport(empId){
   closeAllOverlays();
   reportCtx.empId=empId; reportCtx.jy=today.jy; reportCtx.jm=today.jm;
+  mainScroll = window.scrollY || 0;
+  document.getElementById('mainView').style.display='none';
+  document.getElementById('reportPage').style.display='block';
   renderReport();
-  document.getElementById('reportOverlay').classList.add('show');
+  window.scrollTo(0,0);
+  try{ history.pushState({report:1}, ''); }catch(e){}
 }
+function closeReport(){
+  if(!reportOpen()) return;
+  document.getElementById('reportPage').style.display='none';
+  document.getElementById('mainView').style.display='';
+  renderAll();
+  window.scrollTo(0, mainScroll||0);
+}
+document.getElementById('reportBackBtn').onclick=()=>{
+  if(history.state && history.state.report){ history.back(); } else { closeReport(); }
+};
+window.addEventListener('popstate', ()=>{ if(reportOpen()) closeReport(); });
+
 function monthSwitchHtml(prevFn, nextFn, label){
   return `<button onclick="${prevFn}">‹</button><span class="lbl">${label}</span><button onclick="${nextFn}">›</button>`;
 }
@@ -1748,13 +2177,18 @@ function shiftMonth(jy,jm,delta){
   if(jm>12){ jm=1; jy++; } if(jm<1){ jm=12; jy--; }
   return {jy,jm};
 }
+function statLeaveText(n){ return faDigits(n)+' روز مرخصی'; }
+function statOtText(h){ return fmtHoursNum(h)+' ساعت اضافه‌کاری'; }
+function statDefText(h){ return fmtHoursNum(h)+' ساعت کسری کار'; }
 
 function renderReport(){
   const emp=DB.employees.find(e=>e.id===reportCtx.empId);
   document.getElementById('reportTitle').textContent = 'گزارش ماهانه — '+(emp?emp.name:'');
+  document.getElementById('reportSub').textContent = (emp&&emp.role? emp.role+' — ':'') + MONTH_NAMES[reportCtx.jm-1]+' '+faDigits(reportCtx.jy);
   document.getElementById('reportMonthSwitch').innerHTML = monthSwitchHtml('repPrev()','repNext()', MONTH_NAMES[reportCtx.jm-1]+' '+faDigits(reportCtx.jy));
 
-  const {rows,sum}=monthSummary(reportCtx.empId, reportCtx.jy, reportCtx.jm);
+  const S=monthSummary(reportCtx.empId, reportCtx.jy, reportCtx.jm);
+  const rows=S.rows;
   const body=document.getElementById('reportBody');
   body.innerHTML = rows.map((info,i)=>{
     const d=i+1;
@@ -1768,18 +2202,25 @@ function renderReport(){
     else if(info.holidayTitle){ noteCell = info.label || info.note || ''; inCell='—'; outCell='—'; }
     else if(info.isFriday){ inCell='—'; outCell='—'; }
     else if(info.leave){ noteCell = 'مرخصی'+(info.note? (' - '+info.note):''); }
-    else { inCell = info.in? info.in : ''; outCell = info.out? info.out : '۰'; }
+    else { inCell = info.in? faTime(info.in) : ''; outCell = info.out? faTime(info.out) : '۰'; }
     return `<tr class="${cls}">
-      <td>${faDigits(d)}</td>
-      <td>${info.weekdayName}</td>
-      <td>${inCell}</td>
-      <td>${outCell}</td>
-      <td style="text-align:right">${escapeHtml(noteCell)}</td>
-      <td>${info.type==='future'? '—' : fmtDiff(info.diff)}</td>
+      <td class="nw">${faDigits(d)}</td>
+      <td class="nw">${info.weekdayName}</td>
+      <td class="nw">${inCell}</td>
+      <td class="nw">${outCell}</td>
+      <td class="note-cell">${escapeHtml(noteCell)}</td>
+      <td class="nw">${info.type==='future'? '—' : fmtDiff(info.diff)}</td>
       <td><button class="mini-edit" onclick="openEditModal('${reportCtx.empId}',${reportCtx.jy},${reportCtx.jm},${d})">${svgIcon('pencil',14)}</button></td>
     </tr>`;
   }).join('');
-  document.getElementById('reportSum').innerHTML = fmtDiffFullHtml(sum);
+
+  document.getElementById('repStats').innerHTML =
+    `<div class="stat leave"><div class="num">${faDigits(S.leaveCount)}</div><div class="lbl2">روز مرخصی</div></div>`+
+    `<div class="stat ot"><div class="num">${fmtHoursNum(S.overtime)}</div><div class="lbl2">ساعت اضافه‌کاری</div></div>`+
+    `<div class="stat def"><div class="num">${fmtHoursNum(S.deficit)}</div><div class="lbl2">ساعت کسری کار</div></div>`;
+  document.getElementById('repLeaveSum').textContent = statLeaveText(S.leaveCount);
+  document.getElementById('reportSum').innerHTML = '<span class="diff-pos">'+statOtText(S.overtime)+'</span>';
+  document.getElementById('repDefSum').innerHTML = '<span class="diff-neg">'+statDefText(S.deficit)+'</span>';
 
   renderBonusBox();
 }
@@ -1976,7 +2417,8 @@ function employeeExportLabel(emp){
 }
 function buildEmployeeSheetData(empId, jy, jm){
   const emp=DB.employees.find(e=>e.id===empId);
-  const {rows,sum} = monthSummary(empId, jy, jm);
+  const S = monthSummary(empId, jy, jm);
+  const rows=S.rows, sum=S.sum;
   const header=['روز','روز هفته','ورود','خروج','توضیحات','کسری/اضافه‌کار (ساعت)'];
   const aoa=[header];
   const rowMeta=[];
@@ -1997,7 +2439,11 @@ function buildEmployeeSheetData(empId, jy, jm){
     rowMeta.push(kind);
   });
   const bonusRec = DB.bonus[empId] && DB.bonus[empId][jy+'-'+pad2(jm)];
-  aoa.push(['جمع کل اضافه‌کار این ماه','','','','', fmtDiffFull(sum)]);
+  aoa.push(['تعداد روزهای مرخصی','','','','', statLeaveText(S.leaveCount)]);
+  rowMeta.push('sum');
+  aoa.push(['مجموع ساعات اضافه‌کاری','','','','', statOtText(S.overtime)]);
+  rowMeta.push('sum');
+  aoa.push(['مجموع ساعات کسری کار','','','','', statDefText(S.deficit)]);
   rowMeta.push('sum');
   if(bonusRec){
     aoa.push([bonusRec.type==='bonus'?'پاداش':'جریمه', faDigits(bonusRec.amount.toLocaleString('en-US'))+' تومان', bonusRec.note||'', '', '', '']);
@@ -2013,9 +2459,14 @@ function styleSheet(ws, aoa, rowMeta){
   const colCount = aoa[1] ? aoa[1].length : aoa[0].length;
   if(!ws['!merges']) ws['!merges']=[];
   ws['!merges'].push({ s:{r:0,c:0}, e:{r:0,c:colCount-1} });
+  rowMeta.forEach((k,i)=>{ if(k==='sum') ws['!merges'].push({ s:{r:i+2,c:0}, e:{r:i+2,c:colCount-2} }); });
   const colWidths = (aoa[1]||aoa[0]).map((_,c)=>{
     let max=6;
-    aoa.forEach(r=>{ const v=r[c]==null?'':String(r[c]); if(v.length>max) max=v.length; });
+    aoa.forEach((r,idx)=>{
+      if(idx===0) return;
+      if(idx>=2 && rowMeta[idx-2]==='sum' && c<colCount-1) return;
+      const v=r[c]==null?'':String(r[c]); if(v.length>max) max=v.length;
+    });
     return { wch: max+3 };
   });
   ws['!cols']=colWidths;
@@ -2054,8 +2505,7 @@ function exportAllExcel(jy, jm){
   const wb=XLSX.utils.book_new();
   const used={};
   DB.employees.forEach(e=>{
-    const hasData = DB.records[e.id] && Object.keys(DB.records[e.id]).some(k=>k.startsWith(jy+'-'+pad2(jm)));
-    if(!hasData && e.active===false) return; // skip fired employees with no data this month
+    if(e.active===false && !hasReportableData(e.id, jy, jm)) return; // fired + no real data this month
     const {aoa, rowMeta, name} = buildEmployeeSheetData(e.id, jy, jm);
     const ws=XLSX.utils.aoa_to_sheet(aoa);
     styleSheet(ws, aoa, rowMeta);
@@ -2063,6 +2513,7 @@ function exportAllExcel(jy, jm){
     if(used[sn]){ used[sn]++; sn=sn.slice(0,28)+'_'+used[sn]; } else used[sn]=1;
     XLSX.utils.book_append_sheet(wb, ws, sn);
   });
+  if(wb.SheetNames.length===0){ alert('برای این ماه اطلاعاتی برای خروجی وجود ندارد.'); return; }
   XLSX.writeFile(wb, 'گزارش_کلی_'+MONTH_NAMES[jm-1]+'_'+jy+'.xlsx');
 }
 document.getElementById('repExportXlsx').onclick=()=> exportEmployeeExcel(reportCtx.empId, reportCtx.jy, reportCtx.jm);
@@ -2099,7 +2550,8 @@ function printHtmlReport(title, sections){
 }
 function reportSectionHtml(empId, jy, jm){
   const emp=DB.employees.find(e=>e.id===empId);
-  const {rows,sum}=monthSummary(empId,jy,jm);
+  const S=monthSummary(empId,jy,jm);
+  const rows=S.rows;
   let rowsHtml='';
   rows.forEach((info,i)=>{
     const d=i+1;
@@ -2114,7 +2566,9 @@ function reportSectionHtml(empId, jy, jm){
     const diffTxt = info.type==='future'?'—':fmtDiffPlain(info.diff);
     rowsHtml+=`<tr class="${cls}"><td>${faDigits(d)}</td><td>${info.weekdayName}</td><td>${inCell}</td><td>${outCell}</td><td>${escapeHtml(note)}</td><td>${diffTxt}</td></tr>`;
   });
-  rowsHtml+=`<tr class="sum"><td colspan="5">جمع کل اضافه‌کار</td><td>${fmtDiffFull(sum)}</td></tr>`;
+  rowsHtml+=`<tr class="sum"><td colspan="5">تعداد روزهای مرخصی</td><td>${statLeaveText(S.leaveCount)}</td></tr>`;
+  rowsHtml+=`<tr class="sum"><td colspan="5">مجموع ساعات اضافه‌کاری</td><td>${statOtText(S.overtime)}</td></tr>`;
+  rowsHtml+=`<tr class="sum"><td colspan="5">مجموع ساعات کسری کار</td><td>${statDefText(S.deficit)}</td></tr>`;
   const bonusRec = DB.bonus[empId] && DB.bonus[empId][jy+'-'+pad2(jm)];
   if(bonusRec){
     rowsHtml+=`<tr class="bonus"><td colspan="6">${bonusRec.type==='bonus'?'پاداش':'جریمه'}: ${faDigits(bonusRec.amount.toLocaleString('en-US'))} تومان${bonusRec.note? (' — '+escapeHtml(bonusRec.note)):''}</td></tr>`;
@@ -2137,10 +2591,10 @@ document.getElementById('repExportPdf').onclick=()=>{
 document.getElementById('exportAllPdfBtn').onclick=()=>{
   let html='';
   DB.employees.forEach(e=>{
-    const hasData = DB.records[e.id] && Object.keys(DB.records[e.id]).some(k=>k.startsWith(chartYM.jy+'-'+pad2(chartYM.jm)));
-    if(!hasData && e.active===false) return; // skip fired employees with no data this month
+    if(e.active===false && !hasReportableData(e.id, chartYM.jy, chartYM.jm)) return; // fired + no real data this month
     html+=reportSectionHtml(e.id, chartYM.jy, chartYM.jm);
   });
+  if(!html){ alert('برای این ماه اطلاعاتی برای خروجی وجود ندارد.'); return; }
   printHtmlReport('گزارش کلی حضور و غیاب - '+MONTH_NAMES[chartYM.jm-1]+' '+faDigits(chartYM.jy), html);
 };
 
@@ -2421,9 +2875,12 @@ function renderQuote(){
 function renderAll(){
   renderTodayLine();
   renderEmpList();
-  renderChartSection();
-  renderCalendar();
+  if(!reportOpen()){
+    renderChartSection();
+    renderCalendar();
+  }
   renderMainLog();
+  if(reportOpen()) renderReport();
 }
 loadLocal();
 renderAll();
