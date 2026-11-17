@@ -1660,6 +1660,12 @@
         "leave": true,
         "note": ""
       }
+    },
+    "emwem3rmuzt1gj": {
+      "1405-08-26": {
+        "leave": true,
+        "note": ""
+      }
     }
   },
   "bonus": {
@@ -1740,10 +1746,15 @@
     "emtg8duhuywt1u": {},
     "emul064pji6dyd": {},
     "emtzrbmjl926rr": {},
-    "emw0i25ev0pzn2": {}
+    "emw0i25ev0pzn2": {},
+    "emwem3rmuzt1gj": {}
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-11-17T06:34:02.043Z",
+      "text": "ثبت/ویرایش تردد مهدی موسوی - ۲۶ آبان ۱۴۰۵"
+    },
     {
       "ts": "2026-11-16T06:41:25.750Z",
       "text": "ثبت/ویرایش تردد علیرضا عبدی - ۲۵ آبان ۱۴۰۵"
