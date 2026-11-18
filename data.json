@@ -378,11 +378,16 @@
       "id": "emw0i25ev0pzn2",
       "name": "علیرضا عبدی",
       "role": "کمک نقاش",
-      "active": true,
+      "active": false,
       "createdAt": "1405-08-12",
-      "leftAt": null,
+      "leftAt": "1405-08-27",
       "startDate": "1405-08-12",
-      "inactivePeriods": []
+      "inactivePeriods": [
+        {
+          "from": "1405-08-27",
+          "to": null
+        }
+      ]
     },
     {
       "id": "emwem3rmuzt1gj",
@@ -1767,6 +1772,10 @@
   },
   "holidays": {},
   "logs": [
+    {
+      "ts": "2026-11-18T07:20:21.522Z",
+      "text": "اخراج نیرو: علیرضا عبدی"
+    },
     {
       "ts": "2026-11-18T07:19:52.459Z",
       "text": "ثبت/ویرایش تردد علیرضا عبدی - ۲۷ آبان ۱۴۰۵"
